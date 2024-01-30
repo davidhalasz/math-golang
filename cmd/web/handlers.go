@@ -9,6 +9,7 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"sort"
 	"time"
 
 	"gonum.org/v1/gonum/stat"
@@ -19,9 +20,11 @@ import (
 	"gonum.org/v1/plot/vg/vgimg"
 )
 
-type SVGResponse struct {
-	MeanPNG []byte  `json:"png"`
-	Mean    float64 `json:"mean"`
+type GnumPlotResponse struct {
+	MeanPNG   []byte  `json:"mean_png"`
+	Mean      float64 `json:"mean"`
+	MedianPNG []byte  `json:"median_png"`
+	Median    float64 `json:"median"`
 }
 
 func (app *application) HomePage(w http.ResponseWriter, r *http.Request) {
@@ -62,9 +65,7 @@ func (app *application) Mean(w http.ResponseWriter, r *http.Request) {
 
 	// add incomes to histogram
 	values := make(plotter.Values, len(incomes))
-	for i, v := range incomes {
-		values[i] = v
-	}
+	copy(values, incomes)
 	histogram, _ := plotter.NewHist(values, 20)
 
 	red := uint8(71)
@@ -115,7 +116,76 @@ func (app *application) Mean(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// send JSON response
-	svgResponse := SVGResponse{MeanPNG: pngBuffer.Bytes(), Mean: meanValue}
+	svgResponse := GnumPlotResponse{MeanPNG: pngBuffer.Bytes(), Mean: meanValue}
+	jsonResponse, err := json.Marshal(svgResponse)
+	if err != nil {
+		fmt.Fprintln(w, "Error sending json:", err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(jsonResponse)
+}
+
+func (app *application) Median(w http.ResponseWriter, r *http.Request) {
+	// Use current time as a seed for random number generation
+	seed := time.Now().UnixNano()
+	localRand := rand.New(rand.NewSource(seed))
+
+	// sample number
+	n := 10000
+
+	// mean and standard deviation
+	mean := 27000.0
+	stdDev := 15000.0
+
+	// create normalized sample
+	incomes := make([]float64, n)
+	for i := range incomes {
+		incomes[i] = localRand.NormFloat64()*stdDev + mean
+	}
+
+	// Sort the incomes slice
+	sort.Float64s(incomes)
+
+	// Calculate the median
+	medianValue := stat.Quantile(0.5, stat.Empirical, incomes, nil)
+
+	// New Histogram
+	p := plot.New()
+
+	// add incomes to histogram
+	values := make(plotter.Values, len(incomes))
+	copy(values, incomes)
+	histogram, _ := plotter.NewHist(values, 20)
+
+	red := uint8(71)
+	green := uint8(85)
+	blue := uint8(105)
+
+	histogram.FillColor = color.NRGBA{red, green, blue, 255}
+
+	p.Add(histogram)
+
+	// Create an Image Canvas to draw the plot
+	imgCanvas := vgimg.New(vg.Points(800), vg.Points(400))
+	dc := draw.New(imgCanvas)
+
+	// Set up the plot and draw it onto the canvas
+	p.Draw(dc)
+
+	// Create a buffer to store PNG data
+	var pngBuffer bytes.Buffer
+
+	// Encode the image to PNG and write to the buffer
+	err := png.Encode(&pngBuffer, imgCanvas.Image())
+	if err != nil {
+		log.Printf("error encoding PNG: %v\n", err)
+		return
+	}
+
+	// send JSON response
+	svgResponse := GnumPlotResponse{MedianPNG: pngBuffer.Bytes(), Median: medianValue}
 	jsonResponse, err := json.Marshal(svgResponse)
 	if err != nil {
 		fmt.Fprintln(w, "Error sending json:", err)

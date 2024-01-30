@@ -48,27 +48,28 @@ import (
 )
 
 func main() {
-    // Seed a generátor, hogy mindig ugyanazok az eredmények jöjjenek létre a példány futtatásakor
-    rand.Seed(time.Now().UnixNano())
+    // Use current time as a seed for random number generation
+	seed := time.Now().UnixNano()
+	localRand := rand.New(rand.NewSource(seed))
 
-    // Mintaelemszám
-    n := 10000
+	// sample number
+	n := 10000
 
-    // Középérték és szórás
-    mean := 27000.0
-    stdDev := 15000.0
+	// mean and standard deviation
+	mean := 27000.0
+	stdDev := 15000.0
 
-    // Normál eloszlású minta létrehozása
-    incomes := make([]float64, n)
-    for i := range incomes {
-        incomes[i] = rand.NormFloat64()*stdDev + mean
-    }
+	// create normalized sample
+	incomes := make([]float64, n)
+	for i := range incomes {
+		incomes[i] = localRand.NormFloat64()*stdDev + mean
+	}
 
-    // Átlag számolása
-    meanValue := stat.Mean(incomes, nil)
+	// get mean
+	meanValue := stat.Mean(incomes, nil)
 
-    // Eredmény kiíratása
-    fmt.Printf("Átlag: %.2f\n", meanValue)
+    // print result
+    fmt.Printf("Mean: %.2f\n", meanValue)
 }
                     </code></pre>
                       </div>
@@ -81,14 +82,14 @@ np.mean(incomes)
                         </code></pre>
                       </div>
                       <div class="tab-panel flex flex-col gap-4" :class="{ 'active': activeTab === 2 }" x-show.transition.in.opacity.duration.600="activeTab === 2">
-                        <p class="p-4">Véletlenszerűen generált mintában, ahol a minta elemszáma 10.000, a középérték 27.000 és a szórás 15.000 az így kapott átlag körülbelül <span id="meanValue"></span></p>
+                        <p class="p-4">Véletlenszerűen generált mintában (ahol a minta elemszáma 10.000, a középérték 27.000 és a szórás 15.000) az átlag körülbelül <span id="meanValue"></span></p>
                         <div class="w-full h-[400px] p-10">
                             <img id="meanPNG" src="" alt="Mean Plot">
                         </div>
                         <script>
                             fetch('/statistics/mean').then(response => response.json()).then(data => {
                               document.getElementById('meanValue').innerText = data.mean.toFixed(2);
-                              document.getElementById('meanPNG').src = "data:image/png;base64," + data.png;
+                              document.getElementById('meanPNG').src = "data:image/png;base64," + data.mean_png;
                             });
                           </script>
                       </div>
@@ -122,48 +123,92 @@ np.mean(incomes)
                     <p>A sorbarendezett elemek: 0, 0, 1, 1, 2, 2, 2, 3, 3, 4</p>
                     <p>A középső képt elem átlaga: 2 / 2 = 1</p>
                 </div>
-                <div class="w-2/3">
-                    <pre><code class="language-javascript">
+                <div class="w-2/3" class="tab-wrapper" x-data="{ activeTab: 0 }">
+                    <div class="flex gap-2">
+                        <div
+                          @click="activeTab = 0"
+                          class="tab-control w-[120px] px-4 py-2 text-center rounded-md border border-slate-800 cursor-pointer"
+                          :class="{ 'bg-slate-800 text-slate-100': activeTab === 0 }"
+                        >GO</div>
+                        <div
+                          @click="activeTab = 1"
+                          class="tab-control w-[120px] px-4 py-2 text-center rounded-md border border-slate-800 cursor-pointer"
+                          :class="{ 'bg-slate-800 text-slate-100': activeTab === 1 }"
+                        >Python</div>
+                        <div
+                          @click="activeTab = 2"
+                          class="tab-control w-[120px] px-4 py-2 text-center rounded-md border border-slate-800 cursor-pointer"
+                          :class="{ 'bg-slate-800 text-slate-100': activeTab === 2 }"
+                        >Gnum Plot</div>
+                    </div>
+                    <div :class="{ 'active': activeTab === 0 }" x-show.transition.in.opacity.duration.600="activeTab === 0">
+                        <pre><code class="language-javascript">
 package main
 
 import (
     "fmt"
+    "math/rand"
+	"time"
     "sort"
+
+	"gonum.org/v1/gonum/stat"
 )
 
 func main() {
-    // Your list of integers
-    integers := []int{0, 4, 2, 3, 3, 1, 2, 0, 1, 2, 2}
+    // Use current time as a seed for random number generation
+	seed := time.Now().UnixNano()
+	localRand := rand.New(rand.NewSource(seed))
 
-    // Step 1: Sort the list
-    sort.Ints(integers)
+	// sample number
+	n := 10000
 
-    // Step 2: Find the median
-    median := findMedian(integers)
+	// mean and standard deviation
+	mean := 27000.0
+	stdDev := 15000.0
+
+	// create normalized sample
+	incomes := make([]float64, n)
+	for i := range incomes {
+		incomes[i] = localRand.NormFloat64()*stdDev + mean
+	}
+
+    // Sort the incomes slice
+	sort.Float64s(incomes)
+
+	// Calculate the median
+	medianValue := stat.Quantile(0.5, stat.Empirical, incomes, nil)
 
     // Step 3: Print the result
-    fmt.Println("Sorted List:", integers)
     fmt.Println("Median:", median)
 }
 
-func findMedian(nums []int) float64 {
-    length := len(nums)
-    middle := length / 2
+                        </code></pre>
+                    </div>
+                    <div class="tab-panel" :class="{ 'active': activeTab === 1 }" x-show.transition.in.opacity.duration.600="activeTab === 1">
+                        <pre><code class="language-javascript">
+import numpy as np
 
-    if length%2 == 0 {
-        // If the length is even, return the average of the two middle elements
-        return float64(nums[middle-1]+nums[middle]) / 2.0
-        } else {
-        // If the length is odd, return the middle element
-        return float64(nums[middle])
-    }
-}
-                    </code></pre>
+incomes = np.random.normal(27000, 15000, 10000)
+np.median(incomes)
+                        </code></pre>
+                      </div>
+                      <div class="tab-panel flex flex-col gap-4" :class="{ 'active': activeTab === 2 }" x-show.transition.in.opacity.duration.600="activeTab === 2">
+                        <p class="p-4">Véletlenszerűen generált mintában (ahol a minta elemszáma 10.000, a középérték 27.000 és a szórás 15.000) a medián <span id="medianValue"></span></p>
+                        <div class="w-full h-[400px] p-10">
+                            <img id="medianPNG" src="" alt="Mean Plot">
+                        </div>
+                        <script>
+                            fetch('/statistics/median').then(response => response.json()).then(data => {
+                              document.getElementById('medianValue').innerText = data.median.toFixed(2);
+                              document.getElementById('medianPNG').src = "data:image/png;base64," + data.median_png;
+                            });
+                          </script>
+                      </div>
                 </div>
             </div>
             <div id="mode" class="flex gap-2 mt-8">
                 <div class="w-1/3">
-                    <h2 class="text-xl font-bold">Mód</h2>
+                    <h2 class="text-xl font-bold">Mód / Mode</h2>
                     <p>A leggyakrabban előforduló elem kiválasztása.</p>
                     <p class="mt-2">Példa:</p>
                     <p>A minta elemei: 0, 4, 2, 3, 3, 1, 2, 0, 1, 2</p>
