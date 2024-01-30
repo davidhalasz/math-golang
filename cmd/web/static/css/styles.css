@@ -1,0 +1,14 @@
+.sqrt {
+    display: inline-block;
+    position: relative;
+    vertical-align: middle;
+    margin-right: 2px; /* Opcionális: Kisebb margó a szöveg körül */
+}
+
+.sqrt:before {
+    content: "\221A"; /* Unicode karakter a négyzetgyök jelhez */
+    font-size: 12px; /* Opcionális: A jel mérete */
+    position: absolute;
+    top: -6px; /* Opcionális: A jel pozíciója a szöveghez képest */
+    left: 2px; /* Opcionális: A jel pozíciója a szöveghez képest */
+}

@@ -9,5 +9,12 @@ import (
 func (app *application) routes() http.Handler {
 	mux := chi.NewRouter()
 
+	mux.Get("/home", app.HomePage)
+	mux.Get("/statistics", app.StatisticsPage)
+	mux.Get("/statistics/mean", app.Mean)
+
+	fileServer := http.FileServer(http.Dir("./static/"))
+	mux.Handle("/static/*", http.StripPrefix("/static", fileServer))
+
 	return mux
 }
