@@ -1,41 +1,35 @@
 {{template "base" .}}
 
 {{define "title"}}
-    Statisztika
+Statisztika
 {{end}}
 
 {{define "content"}}
 
-    <div class="container  mx-auto p-10">
-        <div id="median-mean-mode" class="flex flex-col gap-8">
-            <div id="median" class="flex gap-2">
-                <div class="w-1/3">
-                    <h2 class="text-xl font-bold">Átlag</h2>
-                    <p>Kiszámítása: minta elemeinek összege / minta elemszáma</p>
-                    <p>Példa:</p>
-                    <p>Az egyes háztartásban élő gyermekek száma az XY utcában: <br>
+<div class="container  mx-auto p-10">
+    <div id="median-mean-mode" class="flex flex-col gap-8">
+        <div id="median" class="flex gap-2">
+            <div class="w-1/3">
+                <h2 class="text-xl font-bold">Átlag</h2>
+                <p>Kiszámítása: minta elemeinek összege / minta elemszáma</p>
+                <p>Példa:</p>
+                <p>Az egyes háztartásban élő gyermekek száma az XY utcában: <br>
                     0, 4, 2, 3, 3, 1, 2, 0, 1, 2</p>
-                    <p>Az átlag: (0+4+2+3+3+1+2+0+1+2) / 10 = 18/10 = 1,8</p>
+                <p>Az átlag: (0+4+2+3+3+1+2+0+1+2) / 10 = 18/10 = 1,8</p>
+            </div>
+            <div class="w-2/3" class="tab-wrapper" x-data="{ activeTab: 0 }">
+                <div class="flex gap-2">
+                    <div @click="activeTab = 0"
+                        class="tab-control w-[120px] px-4 py-2 text-center rounded-md border border-slate-800 cursor-pointer"
+                        :class="{ 'bg-slate-800 text-slate-100': activeTab === 0 }">GO</div>
+                    <div @click="activeTab = 1"
+                        class="tab-control w-[120px] px-4 py-2 text-center rounded-md border border-slate-800 cursor-pointer"
+                        :class="{ 'bg-slate-800 text-slate-100': activeTab === 1 }">Python</div>
+                    <div @click="activeTab = 2"
+                        class="tab-control w-[120px] px-4 py-2 text-center rounded-md border border-slate-800 cursor-pointer"
+                        :class="{ 'bg-slate-800 text-slate-100': activeTab === 2 }">Gnum Plot</div>
                 </div>
-                <div class="w-2/3" class="tab-wrapper" x-data="{ activeTab: 0 }">
-                    <div class="flex gap-2">
-                        <div
-                          @click="activeTab = 0"
-                          class="tab-control w-[120px] px-4 py-2 text-center rounded-md border border-slate-800 cursor-pointer"
-                          :class="{ 'bg-slate-800 text-slate-100': activeTab === 0 }"
-                        >GO</div>
-                        <div
-                          @click="activeTab = 1"
-                          class="tab-control w-[120px] px-4 py-2 text-center rounded-md border border-slate-800 cursor-pointer"
-                          :class="{ 'bg-slate-800 text-slate-100': activeTab === 1 }"
-                        >Python</div>
-                        <div
-                          @click="activeTab = 2"
-                          class="tab-control w-[120px] px-4 py-2 text-center rounded-md border border-slate-800 cursor-pointer"
-                          :class="{ 'bg-slate-800 text-slate-100': activeTab === 2 }"
-                        >Gnum Plot</div>
-                    </div>
-                      <div :class="{ 'active': activeTab === 0 }" x-show.transition.in.opacity.duration.600="activeTab === 0">
+                <div :class="{ 'active': activeTab === 0 }" x-show.transition.in.opacity.duration.600="activeTab === 0">
                     <pre><code class="language-javascript" >
 package main
 
@@ -72,77 +66,75 @@ func main() {
     fmt.Printf("Mean: %.2f\n", meanValue)
 }
                     </code></pre>
-                      </div>
-                      <div class="tab-panel" :class="{ 'active': activeTab === 1 }" x-show.transition.in.opacity.duration.600="activeTab === 1">
-                        <pre><code class="language-javascript">
+                </div>
+                <div class="tab-panel" :class="{ 'active': activeTab === 1 }"
+                    x-show.transition.in.opacity.duration.600="activeTab === 1">
+                    <pre><code class="language-javascript">
 import numpy as np
 
 incomes = np.random.normal(27000, 15000, 10000)
 np.mean(incomes)
                         </code></pre>
-                      </div>
-                      <div class="tab-panel flex flex-col gap-4" :class="{ 'active': activeTab === 2 }" x-show.transition.in.opacity.duration.600="activeTab === 2">
-                        <p class="p-4">Véletlenszerűen generált mintában (ahol a minta elemszáma 10.000, a középérték 27.000 és a szórás 15.000) az átlag körülbelül <span id="meanValue"></span></p>
-                        <div class="w-full h-[400px] p-10">
-                            <img id="meanPNG" src="" alt="Mean Plot">
-                        </div>
-                        <script>
-                            fetch('/statistics/mean').then(response => response.json()).then(data => {
-                              document.getElementById('meanValue').innerText = data.mean.toFixed(2);
-                              document.getElementById('meanPNG').src = "data:image/png;base64," + data.mean_png;
-                            });
-                          </script>
-                      </div>
+                </div>
+                <div class="tab-panel flex flex-col gap-4" :class="{ 'active': activeTab === 2 }"
+                    x-show.transition.in.opacity.duration.600="activeTab === 2">
+                    <p class="p-4">Véletlenszerűen generált mintában (ahol a minta elemszáma 10.000, a középérték 27.000
+                        és a szórás 15.000) az átlag körülbelül <span id="meanValue"></span></p>
+                    <div class="w-full h-[400px] p-10">
+                        <img id="meanPNG" src="" alt="Mean Plot">
+                    </div>
+                    <script>
+                        fetch('/statistics/mean').then(response => response.json()).then(data => {
+                            document.getElementById('meanValue').innerText = data.mean.toFixed(2);
+                            document.getElementById('meanPNG').src = "data:image/png;base64," + data.mean_png;
+                        });
+                    </script>
                 </div>
             </div>
-            <div id="mean" class="flex gap-2">
-                <div class="w-1/3">
-                    <h2 class="text-xl font-bold">Medián</h2>
-                    <p>Az elemek sorbarendezése, majd a középső elem kiválasztása.</p>
-                    <p class="font-bold mt-2">Páros elemszám esetén</p>
-                    <p>A középső elem kiszámítása: A minta elemszáma / 2 = n. Az n értékét felülkerekítjük, majd kiválasztjuk a sorbarendezett minta n-edik elemét.</p>
-                    <p class="mt-2">Példa:</p>
-                    <p>A minta elemei: 0, 4, 2, 3, 3, 1, 2, 0, 1, 2, 2</p>
-                    <p>A sorbarendezett elemek: 0, 0, 1, 1, 2, 2, 2, 2, 3, 3, 4</p>
-                    <p>A középső elem kiszámítása:</p>
-                    <ul>
-                        <li>11 / 2 = 5,5</li>
-                        <li>5,5 kerekítve 6</li>
-                        <li>A sorbarendezett lista 6. eleme: 2</li>
-                    </ul>
+        </div>
+        <div id="mean" class="flex gap-2">
+            <div class="w-1/3">
+                <h2 class="text-xl font-bold">Medián</h2>
+                <p>Az elemek sorbarendezése, majd a középső elem kiválasztása.</p>
+                <p class="font-bold mt-2">Páros elemszám esetén</p>
+                <p>A középső elem kiszámítása: A minta elemszáma / 2 = n. Az n értékét felülkerekítjük, majd
+                    kiválasztjuk a sorbarendezett minta n-edik elemét.</p>
+                <p class="mt-2">Példa:</p>
+                <p>A minta elemei: 0, 4, 2, 3, 3, 1, 2, 0, 1, 2, 2</p>
+                <p>A sorbarendezett elemek: 0, 0, 1, 1, 2, 2, 2, 2, 3, 3, 4</p>
+                <p>A középső elem kiszámítása:</p>
+                <ul>
+                    <li>11 / 2 = 5,5</li>
+                    <li>5,5 kerekítve 6</li>
+                    <li>A sorbarendezett lista 6. eleme: 2</li>
+                </ul>
 
-                    <p class="font-bold mt-4">Páratlan elemszám esetén</p>
-                    <p>A középső elem kiszámításának lépései:</p>
-                    <ul>
-                        <li>A minta elemszáma / 2 = n</li>
-                        <li>Kiválasztjuk a sorbarendezett minta n-edik és (n+1)-edik elemét.</li>
-                        <li>Kiszámítjuk a fenti két elem átlagát</li>
-                    </ul>
-                    <p class="mt-2">Példa:</p>
-                    <p>A minta elemei: 0, 4, 2, 3, 3, 1, 2, 0, 1, 2</p>
-                    <p>A sorbarendezett elemek: 0, 0, 1, 1, 2, 2, 2, 3, 3, 4</p>
-                    <p>A középső képt elem átlaga: 2 / 2 = 1</p>
+                <p class="font-bold mt-4">Páratlan elemszám esetén</p>
+                <p>A középső elem kiszámításának lépései:</p>
+                <ul>
+                    <li>A minta elemszáma / 2 = n</li>
+                    <li>Kiválasztjuk a sorbarendezett minta n-edik és (n+1)-edik elemét.</li>
+                    <li>Kiszámítjuk a fenti két elem átlagát</li>
+                </ul>
+                <p class="mt-2">Példa:</p>
+                <p>A minta elemei: 0, 4, 2, 3, 3, 1, 2, 0, 1, 2</p>
+                <p>A sorbarendezett elemek: 0, 0, 1, 1, 2, 2, 2, 3, 3, 4</p>
+                <p>A középső képt elem átlaga: 2 / 2 = 1</p>
+            </div>
+            <div class="w-2/3" class="tab-wrapper" x-data="{ activeTab: 0 }">
+                <div class="flex gap-2">
+                    <div @click="activeTab = 0"
+                        class="tab-control w-[120px] px-4 py-2 text-center rounded-md border border-slate-800 cursor-pointer"
+                        :class="{ 'bg-slate-800 text-slate-100': activeTab === 0 }">GO</div>
+                    <div @click="activeTab = 1"
+                        class="tab-control w-[120px] px-4 py-2 text-center rounded-md border border-slate-800 cursor-pointer"
+                        :class="{ 'bg-slate-800 text-slate-100': activeTab === 1 }">Python</div>
+                    <div @click="activeTab = 2"
+                        class="tab-control w-[120px] px-4 py-2 text-center rounded-md border border-slate-800 cursor-pointer"
+                        :class="{ 'bg-slate-800 text-slate-100': activeTab === 2 }">Gnum Plot</div>
                 </div>
-                <div class="w-2/3" class="tab-wrapper" x-data="{ activeTab: 0 }">
-                    <div class="flex gap-2">
-                        <div
-                          @click="activeTab = 0"
-                          class="tab-control w-[120px] px-4 py-2 text-center rounded-md border border-slate-800 cursor-pointer"
-                          :class="{ 'bg-slate-800 text-slate-100': activeTab === 0 }"
-                        >GO</div>
-                        <div
-                          @click="activeTab = 1"
-                          class="tab-control w-[120px] px-4 py-2 text-center rounded-md border border-slate-800 cursor-pointer"
-                          :class="{ 'bg-slate-800 text-slate-100': activeTab === 1 }"
-                        >Python</div>
-                        <div
-                          @click="activeTab = 2"
-                          class="tab-control w-[120px] px-4 py-2 text-center rounded-md border border-slate-800 cursor-pointer"
-                          :class="{ 'bg-slate-800 text-slate-100': activeTab === 2 }"
-                        >Gnum Plot</div>
-                    </div>
-                    <div :class="{ 'active': activeTab === 0 }" x-show.transition.in.opacity.duration.600="activeTab === 0">
-                        <pre><code class="language-javascript">
+                <div :class="{ 'active': activeTab === 0 }" x-show.transition.in.opacity.duration.600="activeTab === 0">
+                    <pre><code class="language-javascript">
 package main
 
 import (
@@ -183,40 +175,54 @@ func main() {
 }
 
                         </code></pre>
-                    </div>
-                    <div class="tab-panel" :class="{ 'active': activeTab === 1 }" x-show.transition.in.opacity.duration.600="activeTab === 1">
-                        <pre><code class="language-javascript">
+                </div>
+                <div class="tab-panel" :class="{ 'active': activeTab === 1 }"
+                    x-show.transition.in.opacity.duration.600="activeTab === 1">
+                    <pre><code class="language-javascript">
 import numpy as np
 
 incomes = np.random.normal(27000, 15000, 10000)
 np.median(incomes)
                         </code></pre>
-                      </div>
-                      <div class="tab-panel flex flex-col gap-4" :class="{ 'active': activeTab === 2 }" x-show.transition.in.opacity.duration.600="activeTab === 2">
-                        <p class="p-4">Véletlenszerűen generált mintában (ahol a minta elemszáma 10.000, a középérték 27.000 és a szórás 15.000) a medián <span id="medianValue"></span></p>
-                        <div class="w-full h-[400px] p-10">
-                            <img id="medianPNG" src="" alt="Mean Plot">
-                        </div>
-                        <script>
-                            fetch('/statistics/median').then(response => response.json()).then(data => {
-                              document.getElementById('medianValue').innerText = data.median.toFixed(2);
-                              document.getElementById('medianPNG').src = "data:image/png;base64," + data.median_png;
-                            });
-                          </script>
-                      </div>
+                </div>
+                <div class="tab-panel flex flex-col gap-4" :class="{ 'active': activeTab === 2 }"
+                    x-show.transition.in.opacity.duration.600="activeTab === 2">
+                    <p class="p-4">Véletlenszerűen generált mintában (ahol a minta elemszáma 10.000, a középérték 27.000
+                        és a szórás 15.000) a medián <span id="medianValue"></span></p>
+                    <div class="w-full h-[400px] p-10">
+                        <img id="medianPNG" src="" alt="Mean Plot">
+                    </div>
+                    <script>
+                        fetch('/statistics/median').then(response => response.json()).then(data => {
+                            document.getElementById('medianValue').innerText = data.median.toFixed(2);
+                            document.getElementById('medianPNG').src = "data:image/png;base64," + data.median_png;
+                        });
+                    </script>
                 </div>
             </div>
-            <div id="mode" class="flex gap-2 mt-8">
-                <div class="w-1/3">
-                    <h2 class="text-xl font-bold">Mód / Mode</h2>
-                    <p>A leggyakrabban előforduló elem kiválasztása.</p>
-                    <p class="mt-2">Példa:</p>
-                    <p>A minta elemei: 0, 4, 2, 3, 3, 1, 2, 0, 1, 2</p>
-                    <p>A leggyakrabban előforduló elem: 2</p>
+        </div>
+        <div id="mode" class="flex gap-2 mt-8">
+            <div class="w-1/3">
+                <h2 class="text-xl font-bold">Mód / Mode</h2>
+                <p>A leggyakrabban előforduló elem kiválasztása.</p>
+                <p class="mt-2">Példa:</p>
+                <p>A minta elemei: 0, 4, 2, 3, 3, 1, 2, 0, 1, 2</p>
+                <p>A leggyakrabban előforduló elem: 2</p>
+            </div>
+            <div class="w-2/3" class="tab-wrapper" x-data="{ activeTab: 0 }">
+                <div class="flex gap-2">
+                    <div @click="activeTab = 0"
+                        class="flex items-center justify-center tab-control w-[180px] px-4 py-2 text-center rounded-md border border-slate-800 cursor-pointer"
+                        :class="{ 'bg-slate-800 text-slate-100': activeTab === 0 }">GO</div>
+                    <div @click="activeTab = 1"
+                        class="flex items-center justify-center tab-control w-[180px] px-4 py-2 text-center rounded-md border border-slate-800 cursor-pointer"
+                        :class="{ 'bg-slate-800 text-slate-100': activeTab === 1 }">GO with gonum Package</div>
+                    <div @click="activeTab = 2"
+                        class="flex items-center justify-center tab-control w-[180px] px-4 py-2 text-center rounded-md border border-slate-800 cursor-pointer"
+                        :class="{ 'bg-slate-800 text-slate-100': activeTab === 2 }">Python</div>
                 </div>
-                <div class="w-2/3">
-                <pre>
-                    <code class="language-javascript">
+                <div :class="{ 'active': activeTab === 0 }" x-show.transition.in.opacity.duration.600="activeTab === 0">
+                    <pre><code class="language-javascript">
 package main
 
 import (
@@ -255,105 +261,189 @@ func findMode(nums []int) int {
                         
     return modeNum
 }
-                    </code>
-                </pre>
+                            </code>
+                        </pre>
                 </div>
-            </div>
-        </div>
-
-        <div id="variance" class="flex gap-2 mt-8">
-            <div class="w-1/3">
-                <h2 class="text-xl font-bold">Variancia</h2>
-                <p>A variancia a szórás négyzete, ezért is nevezik szórásnégyzetnek is. A szórás pedig azt fejezi ki, hogy értékeink átlagosan mennyivel térnek el az átlagtól, mennyivel szóródnak az átlag körül.</p>
-                <p class="mt-2">Példa:</p>
-                <p>A minta elemei: 1, 4, 5, 4, 8</p>
-                <p>A variancia kiszámításának lépései:</p>
-                <ul class="list-decimal pl-4">
-                    <li class="mt-2">Az átlag kiszámítása: <br>(1+4+5+4+8) / 5 = 4,4</li>
-                    <li class="mt-2">Minden egyes mintaelemből vonjuk ki az átlagot: <br>(-3,4 -0,4 0,6 -0,4 3,6)</li>
-                    <li class="mt-2">Az így kapott mintaelemeket emeljük négyzetre: <br>(11,56 0,16 0,36 0,16 12,96)</li>
-                    <li class="mt-2">újabb átlagolással megkapjuk a szórásnégyzetet: <br>σ<sup>2</sup>= (11,56 + 0,16 + 0,36 + 0,16 + 12,96) / 5 = 5,04</li>
-                    <li class="mt-2">A szórás pedig a variancia négyzetgyöke: <br>
-                        <div class="flex">
-                            <math display="block">
-                                <msqrt>
-                                    <mi>5,04</mi>
-                                </msqrt>
-                            </math>
-                            <span>= 2,24</span>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-            <div class="w-2/3">
-            <pre>
-                <code class="language-javascript">
+                <div :class="{ 'active': activeTab === 1 }" x-show.transition.in.opacity.duration.600="activeTab === 1">
+                    <pre><code class="language-javascript">
 package main
 
 import (
     "fmt"
-    "math"
+    "math/rand"
+	"time"
+
+    "gonum.org/v1/gonum/stat"
 )
-                    
+                        
 func main() {
-    floatList := []float64{1, 4, 5, 4, 8}
-                        
-    variance := findVariance(floatList)
-                        
-    // Print the result
-    fmt.Println("List:", floatList)
-    fmt.Println("Variance:", variance)
-    fmt.Println("Standard deviation:", math.Sqrt(mode))
+// let's generate ages random age data between 18 and 90 for 200 people
+seed := time.Now().UnixNano()
+localRand := rand.New(rand.NewSource(seed))
+
+n := 200
+low := 18
+high := 90
+
+// Generate random ages
+ages := make([]float64, n)
+for i := range ages {
+	ages[i] = float64(localRand.Intn(high-low) + low)
 }
-                    
-func findVariance(nums []float64) float64 {
-    avg := calculateAverage(nums)
-    fmt.Println("avg:", avg)
-                        
-    newNums := []float64{}
-    for _, num := range nums {
-        diff := num - avg
-        newNum := math.Pow(diff, 2)
-        newNums = append(newNums, newNum)
-    }
-                    
-    return calculateAverage(newNums)             
+
+// Use the Mode function from the gonum/stat package
+modeValue, _ := stat.Mode(sort.Float64Slice(ages), nil)
+
+fmt.Printf("Mode: %d", int(modeValue))
 }
-                    
-func calculateAverage(nums []float64) float64 {
-    total := float64(0)
-                        
-    for _, num := range nums {
-        total += num
-    }
-                        
-    return total / float64(len(nums))
-}
-                    
-                        </code>
-                    </pre>
+                        </code></pre>
+                </div>
+                <div :class="{ 'active': activeTab === 2 }" x-show.transition.in.opacity.duration.600="activeTab === 2">
+                    <pre><code class="language-javascript">
+from scipy import stats
+
+ages = np.random.randint(18, high=90, size=500)
+stats.mode(ages)
+
+                        </code></pre>
                 </div>
             </div>
-       
+        </div>
+    </div>
 
-        <div id="gauss" class="flex gap-2 mt-8">
-            <div class="w-1/3">
-                <h2 class="text-xl font-bold">Normális eloszlásfüggvény</h2>
-                <p>A normális eloszlásfüggvény, más néven Gauss-eloszlás vagy normális görbe, egy olyan valószínűségi eloszlás, amely sok esetben megfigyelhető a természeti és társadalmi folyamatokban. Jellemzően szimmetrikus, csúcsa a középérték körül található, és a csúcsától távolodva egyre kisebb lesz a valószínűsége az értékeknek. Képlete:</p>
-                <p>
-                    \[ f(x; \mu, \sigma) = \frac{1}{\sigma \sqrt{2\pi}} e^{-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2} \]
-                </p>
-                <ul>
-                    <li>f(x;μ,σ) a normális eloszlás sűrűségfüggvénye,</li>
-                    <li>x a változó értéke,</li>
-                    <li>μ a várható érték (átlag),</li>
-                    <li>σ a szórás.</li>
-                </ul>
-                <p class="mt-2">Példa:</p>
-                <p>Egy példa a normális eloszlásra lehet a magasság eloszlása egy adott populációban. Előfordul, hogy a magasság közelítően normális eloszlást követ, és a többség az átlag magasság körül helyezkedik el.</p>
+    <div id="variance" class="flex gap-2 mt-8">
+        <div class="w-1/3">
+            <h2 class="text-xl font-bold">Variancia, szórás</h2>
+            <p>A variancia a szórás négyzete, ezért is nevezik szórásnégyzetnek is. A szórás pedig azt fejezi ki, hogy
+                értékeink átlagosan mennyivel térnek el az átlagtól, mennyivel szóródnak az átlag körül.</p>
+            <p class="mt-2">Példa:</p>
+            <p>A minta elemei: 1, 4, 5, 4, 8</p>
+            <p>A variancia kiszámításának lépései:</p>
+            <ul class="list-decimal pl-4">
+                <li class="mt-2">Az átlag kiszámítása: <br>(1+4+5+4+8) / 5 = 4,4</li>
+                <li class="mt-2">Minden egyes mintaelemből vonjuk ki az átlagot: <br>(-3,4 -0,4 0,6 -0,4 3,6)</li>
+                <li class="mt-2">Az így kapott mintaelemeket emeljük négyzetre: <br>(11,56 0,16 0,36 0,16 12,96)</li>
+                <li class="mt-2">újabb átlagolással megkapjuk a szórásnégyzetet: <br>σ<sup>2</sup>= (11,56 + 0,16 + 0,36
+                    + 0,16 + 12,96) / 5 = 5,04</li>
+                <li class="mt-2">A szórás pedig a variancia négyzetgyöke: <br>
+                    <div class="flex">
+                        <math display="block">
+                            <msqrt>
+                                <mi>5,04</mi>
+                            </msqrt>
+                        </math>
+                        <span>= 2,24</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="w-2/3" class="tab-wrapper" x-data="{ activeTab: 0 }">
+            <div class="flex gap-2">
+                <div @click="activeTab = 0"
+                    class="tab-control w-[120px] px-4 py-2 text-center rounded-md border border-slate-800 cursor-pointer"
+                    :class="{ 'bg-slate-800 text-slate-100': activeTab === 0 }">GO</div>
+                <div @click="activeTab = 1"
+                    class="tab-control w-[120px] px-4 py-2 text-center rounded-md border border-slate-800 cursor-pointer"
+                    :class="{ 'bg-slate-800 text-slate-100': activeTab === 1 }">Python</div>
+                <div @click="activeTab = 2"
+                    class="tab-control w-[120px] px-4 py-2 text-center rounded-md border border-slate-800 cursor-pointer"
+                    :class="{ 'bg-slate-800 text-slate-100': activeTab === 2 }">Gnum Plot</div>
             </div>
-            <div class="w-2/3">
-                <pre>
+            <div :class="{ 'active': activeTab === 0 }" x-show.transition.in.opacity.duration.600="activeTab === 0">
+                <pre><code class="language-javascript" >
+package main
+
+import (
+    "fmt"
+    "math/rand"
+    "time"
+
+    "gonum.org/v1/gonum/stat"
+)
+
+func main() {
+    seed := time.Now().UnixNano()
+	localRand := rand.New(rand.NewSource(seed))
+
+	n := 10000
+	mean := 100.0
+	stdDev := 100.0
+
+	incomes := make([]float64, n)
+	for i := range incomes {
+		incomes[i] = localRand.NormFloat64()*stdDev + mean
+	}
+
+	stdDeviation := stat.StdDev(incomes, nil)
+
+	variance := stat.Variance(incomes, nil)
+
+	fmt.Printf("Variance: %f ", variance)
+	fmt.Printf("Standard Deviation: %f", stdDeviation)
+}
+                    
+                        </code></pre>
+            </div>
+            <div :class="{ 'active': activeTab === 1 }" x-show.transition.in.opacity.duration.600="activeTab === 1">
+                <pre><code class="language-javascript">
+%matplotlib inline
+import numpy as np
+import matplotlib.pyplot as plt
+
+incomes = np.random.normal(100.0, 100.0, 10000)
+
+plt.hist(incomes, 50)
+plt.show()
+
+// Standard Deviation
+incomes.std()
+
+// Variance
+incomes.var()
+                </code></pre>
+            </div>
+
+            <div :class="{ 'active': activeTab === 2 }" x-show.transition.in.opacity.duration.600="activeTab === 2">
+                <p class="p-4">Véletlenszerűen generált mintában (ahol a minta elemszáma 10.000, a középérték 100
+                    és a szórás 100) a variancia <span id="varianciaValue"></span> és a szórása pedig <span id="stdDevValue"></span></p>
+                <div class="w-full h-[400px] p-10">
+                    <img id="stdDevVarPNG" src="" alt="standard deviation and variance histogram">
+                </div>
+                <script>
+                    fetch('/statistics/std-deviation-variance').then(response => response.json()).then(data => {
+                        document.getElementById('varianciaValue').innerText = data.variance.toFixed(2);
+                        document.getElementById('stdDevValue').innerText = data.std_dev.toFixed(2);
+                        document.getElementById('stdDevVarPNG').src = "data:image/png;base64," + data.std_dev_var_png;
+                    });
+                </script>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="gauss" class="flex gap-2 mt-8">
+        <div class="w-1/3">
+            <h2 class="text-xl font-bold">Normális eloszlásfüggvény</h2>
+            <p>A normális eloszlásfüggvény, más néven Gauss-eloszlás vagy normális görbe, egy olyan valószínűségi
+                eloszlás, amely sok esetben megfigyelhető a természeti és társadalmi folyamatokban. Jellemzően
+                szimmetrikus, csúcsa a középérték körül található, és a csúcsától távolodva egyre kisebb lesz a
+                valószínűsége az értékeknek. Képlete:</p>
+            <p>
+                \[ f(x; \mu, \sigma) = \frac{1}{\sigma \sqrt{2\pi}} e^{-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2}
+                \]
+            </p>
+            <ul>
+                <li>f(x;μ,σ) a normális eloszlás sűrűségfüggvénye,</li>
+                <li>x a változó értéke,</li>
+                <li>μ a várható érték (átlag),</li>
+                <li>σ a szórás.</li>
+            </ul>
+            <p class="mt-2">Példa:</p>
+            <p>Egy példa a normális eloszlásra lehet a magasság eloszlása egy adott populációban. Előfordul, hogy a
+                magasság közelítően normális eloszlást követ, és a többség az átlag magasság körül helyezkedik el.</p>
+        </div>
+        <div class="w-2/3">
+            <pre>
                     <code class="language-javascript">
 package main
 
@@ -422,37 +512,46 @@ func normalisEloszlas(x, mu, sigma float64) float64 {
 }
                     </code>
                 </pre>
-            </div>
         </div>
+    </div>
 
-        <div id="binomial" class="flex gap-2 mt-8">
-            <div class="w-1/3">
-                <h2 class="text-xl font-bold">A binomiális valószínűségi tömegfüggvény</h2>
-                <p>A binomiális valószínűségi tömegfüggvény (binomiális PMF) egy valószínűségi tömegfüggvény, amely a binomiális eloszlás egy adott eseményének valószínűségét adja meg. A binomiális eloszlás olyan diszkrét valószínűségi eloszlás, amely azonos és független Bernoulli-kísérletek sorozatát írja le, ahol minden kísérletnek két lehetséges kimenete van (például "siker" vagy "kudarc"), és a siker valószínűsége állandó. Képlete:</p>
-                <p>\[ P(X = k) = \binom{n}{k} p^k (1-p)^{n-k} \]</p>
-                <ul class="list-disc pl-4">
-                    <li>P(X=k) a valószínűség, hogy a binomiális változó értéke k,</li>
-                    <li>n a kísérletek száma,</li>
-                    <li>k a siker bekövetkezésének száma,</li>
-                    <li>p a siker valószínűsége egy adott kísérletben,</li>
-                    <li class="flex"><span class="text-[10px]"> \[ \binom{n}{k} \]</span> <p>a kombináció, ami az n kísérlet közül k siker bekövetkezésének számát jelenti.</p></li>
-                </ul>
-                <p class="mt-2">Példa:</p>
-                <p>A binomiális valószínűségi tömegfüggvény alkalmazható olyan problémákra, ahol egy véges számú független kísérlet során a siker és a kudarc valószínűsége ismert. Például:</p>
-                <ul class="list-decimal pl-4">
-                    <li>Érmefeldobás példa:<br>
+    <div id="binomial" class="flex gap-2 mt-8">
+        <div class="w-1/3">
+            <h2 class="text-xl font-bold">A binomiális valószínűségi tömegfüggvény</h2>
+            <p>A binomiális valószínűségi tömegfüggvény (binomiális PMF) egy valószínűségi tömegfüggvény, amely a
+                binomiális eloszlás egy adott eseményének valószínűségét adja meg. A binomiális eloszlás olyan diszkrét
+                valószínűségi eloszlás, amely azonos és független Bernoulli-kísérletek sorozatát írja le, ahol minden
+                kísérletnek két lehetséges kimenete van (például "siker" vagy "kudarc"), és a siker valószínűsége
+                állandó. Képlete:</p>
+            <p>\[ P(X = k) = \binom{n}{k} p^k (1-p)^{n-k} \]</p>
+            <ul class="list-disc pl-4">
+                <li>P(X=k) a valószínűség, hogy a binomiális változó értéke k,</li>
+                <li>n a kísérletek száma,</li>
+                <li>k a siker bekövetkezésének száma,</li>
+                <li>p a siker valószínűsége egy adott kísérletben,</li>
+                <li class="flex"><span class="text-[10px]"> \[ \binom{n}{k} \]</span>
+                    <p>a kombináció, ami az n kísérlet közül k siker bekövetkezésének számát jelenti.</p>
+                </li>
+            </ul>
+            <p class="mt-2">Példa:</p>
+            <p>A binomiális valószínűségi tömegfüggvény alkalmazható olyan problémákra, ahol egy véges számú független
+                kísérlet során a siker és a kudarc valószínűsége ismert. Például:</p>
+            <ul class="list-decimal pl-4">
+                <li>Érmefeldobás példa:<br>
 
-                        Tegyük fel, hogy egy érmét tízszer dobunk. Mennyi a valószínűsége, hogy pontosan ötször fej jön ki?
-                    </li>
-                    <li>
-                        Termékminőség ellenőrzése:<br>
+                    Tegyük fel, hogy egy érmét tízszer dobunk. Mennyi a valószínűsége, hogy pontosan ötször fej jön ki?
+                </li>
+                <li>
+                    Termékminőség ellenőrzése:<br>
 
-Egy gyártósor termékeinek minőségellenőrzése során értékeljük, hogy egy véletlenszerűen kiválasztott termék hibás-e vagy sem. Mennyi a valószínűsége, hogy pontosan három termék lesz hibás tíz vizsgált termékből?
-                    </li>
-                </ul>
-            </div>
-            <div class="w-2/3">
-                <pre>
+                    Egy gyártósor termékeinek minőségellenőrzése során értékeljük, hogy egy véletlenszerűen kiválasztott
+                    termék hibás-e vagy sem. Mennyi a valószínűsége, hogy pontosan három termék lesz hibás tíz vizsgált
+                    termékből?
+                </li>
+            </ul>
+        </div>
+        <div class="w-2/3">
+            <pre>
                     <code class="language-javascript">
 package main
 
@@ -498,44 +597,51 @@ func main() {
 }
                     </code>
                 </pre>
-            </div>
         </div>
+    </div>
 
-        <div id="poisson" class="flex gap-2 mt-8">
-            <div class="w-1/3">
-                <h2 class="text-xl font-bold">Poisson valószínűségi tömegfüggvény</h2>
-                <p>
-                    A Poisson eloszlás egy diszkrét valószínűségi eloszlás, amely az események ritka előfordulását modellezi egy adott időintervallumban vagy térbeli tartományban. A Poisson eloszlás főleg olyan eseményekre alkalmazható, ahol az események bekövetkezése független egymástól, és az események átlagos gyakorisága konstans. Képlete:
-                </p>
-                <p>
-                    \[ P(X = k) = \frac{e^{-\lambda} \lambda^k}{k!} \]
-                </p>
-                <ul class="list-disc pl-4">
-                    <li>P(X=k) a valószínűség, hogy a Poisson-eloszlású változó értéke k,</li>
-                    <li>λ a várható események száma egy adott időtartamban,</li>
-                    <li>e az Euler-szám (kb. 2.71828),</li>
-                    <li>k! a faktoriális, ami a k szám faktoriálisát jelenti.
-                    </li>
-                </ul>
-                <p>
-                    A Poisson eloszlás matematikai modellként segít megérteni az események ritka előfordulását, és gyakran alkalmazzák az operációkutatásban, statisztikában és más tudományterületeken. A Poisson eloszlásfüggvény segítségével számolhatók a valószínűségek a különböző eseményszámokhoz, és ezáltal lehetővé teszi az események várható gyakoriságának modellezését.
-                </p>
-                    <p class="mt-2">Példa:</p>
-                <ul class="list-decimal pl-4">
-                    <li>Ritka események modellezése:<br>
+    <div id="poisson" class="flex gap-2 mt-8">
+        <div class="w-1/3">
+            <h2 class="text-xl font-bold">Poisson valószínűségi tömegfüggvény</h2>
+            <p>
+                A Poisson eloszlás egy diszkrét valószínűségi eloszlás, amely az események ritka előfordulását modellezi
+                egy adott időintervallumban vagy térbeli tartományban. A Poisson eloszlás főleg olyan eseményekre
+                alkalmazható, ahol az események bekövetkezése független egymástól, és az események átlagos gyakorisága
+                konstans. Képlete:
+            </p>
+            <p>
+                \[ P(X = k) = \frac{e^{-\lambda} \lambda^k}{k!} \]
+            </p>
+            <ul class="list-disc pl-4">
+                <li>P(X=k) a valószínűség, hogy a Poisson-eloszlású változó értéke k,</li>
+                <li>λ a várható események száma egy adott időtartamban,</li>
+                <li>e az Euler-szám (kb. 2.71828),</li>
+                <li>k! a faktoriális, ami a k szám faktoriálisát jelenti.
+                </li>
+            </ul>
+            <p>
+                A Poisson eloszlás matematikai modellként segít megérteni az események ritka előfordulását, és gyakran
+                alkalmazzák az operációkutatásban, statisztikában és más tudományterületeken. A Poisson eloszlásfüggvény
+                segítségével számolhatók a valószínűségek a különböző eseményszámokhoz, és ezáltal lehetővé teszi az
+                események várható gyakoriságának modellezését.
+            </p>
+            <p class="mt-2">Példa:</p>
+            <ul class="list-decimal pl-4">
+                <li>Ritka események modellezése:<br>
 
-                        Például, a radioaktív bomlás, a számítógépes hálózatoknál fellépő hibák, vagy a telefonhívások egy adott időszak alatt.
-                    </li>
-                    <li>Ügyfél érkezések modellezése:<br>
-                        Ha az ügyfelek érkezése egy adott időintervallumban vagy egy helyen Poisson eloszlást követ.
-                    </li>
-                    <li>Közlekedési események modellezése:<br>
-                        Például, balesetek vagy járművek áthaladása egy adott szakaszon.
-                    </li>
-                </ul>
-            </div>
-            <div class="w-2/3">
-                <pre>
+                    Például, a radioaktív bomlás, a számítógépes hálózatoknál fellépő hibák, vagy a telefonhívások egy
+                    adott időszak alatt.
+                </li>
+                <li>Ügyfél érkezések modellezése:<br>
+                    Ha az ügyfelek érkezése egy adott időintervallumban vagy egy helyen Poisson eloszlást követ.
+                </li>
+                <li>Közlekedési események modellezése:<br>
+                    Például, balesetek vagy járművek áthaladása egy adott szakaszon.
+                </li>
+            </ul>
+        </div>
+        <div class="w-2/3">
+            <pre>
                     <code class="language-javascript">
 package main
 
@@ -578,74 +684,91 @@ func main() {
 }
                     </code>
                 </pre>
-            </div>
         </div>
+    </div>
 
-        <div id="covariance" class="flex gap-2 mt-8">
-            <div class="w-1/3">
-                <h2 class="text-xl font-bold">Kovariancia</h2>
-                <p>
-                    A kovariancia egy statisztikai mérték, amely azt mutatja meg, hogy két változó milyen mértékben változik együtt. Konkrétabban, a kovariancia azt méri, hogy két változó mennyire követi egymást: az egyik változó növekedése vagy csökkenése mennyire jár együtt a másik változó növekedésével vagy csökkenésével.</p>
-                <p>
-                    \[ \text{cov}(X, Y) = \frac{\sum_{i=1}^{n} (x_i - \bar{X})(y_i - \bar{Y})}{n} \]
-                </p>
-                <ul class="list-disc pl-4">
-                    <li>cov(X,Y) a kovariancia X és Y között,</li>
-                    <li>x<sub>i</sub> és y<sub>i</sub> az egyes megfigyelések értékei,</li>
-                    <li class="flex items-center"><span class="text-sm pr-2">\[ \bar{X} \]</span> és <span class="text-sm px-2">\[ \bar{Y} \]</span> a megfigyelések átlaga </li>
-                    <li>n a megfigyelések száma.</li>
-                </ul>
-                <p>
-                    A kovariancia értéke lehet pozitív, negatív vagy nulla:
-                </p>
-                <ul class="list-decimal pl-4">
-                    <li>Pozitív kovariancia:<br>
-                        Ha X és Y pozitívan korrelálnak, akkor növekvő tendencia figyelhető meg. Azaz, amikor egyik változó növekszik, a másik is nagy valószínűséggel növekszik, és fordítva.
-                    </li>
-                    <li>Negatív kovariancia:<br>
-                        Ha X és Y negatívan korrelálnak, akkor csökkenő tendencia figyelhető meg. Azaz, amikor egyik változó növekszik, a másik valószínűleg csökken, és fordítva.
-                    </li>
-                    <li>Nulla kovariancia:<br>
-                        Ha X és Y között nincs korreláció, akkor a kovariancia nulla.
-                    </li>
-                </ul>
-                <p>
-                    A kovarianciát széles körben használják a statisztikában és a pénzügyi elemzésekben. Például:
-                </p>
-                <ul class="list-decimal pl-4">
-                    <li>
-                        Pénzügyi elemzések: A kovariancia segíthet megérteni, hogy két pénzügyi eszköz (például részvények) árfolyama hogyan változik együtt. Pozitív kovariancia esetén, ha az egyik eszköz ára nő, a másik ára is nagy valószínűséggel nő. Negatív kovariancia esetén, ha az egyik eszköz ára nő, a másik ára valószínűleg csökken.
-                    </li>
-                    <li>
-                        Portfóliókezelés: A kovariancia segíthet az eszközök közötti diverzifikáció mértékének értékelésében. Azok az eszközök, amelyek negatív kovarianciával rendelkeznek, segíthetnek csökkenteni a portfólió kockázatát.
-                    </li>
-                    <li>
-                        Gazdasági és társadalmi kutatások: A kovariancia segíthet feltárni a különböző változók közötti kapcsolatokat, például a jövedelem és az oktatás közötti kapcsolatokat.
-                    </li>
-                </ul>
-                <p>
-                    Fontos megjegyezni, hogy a kovariancia nem normalizált, tehát az értéke a bemeneti változók mértékegységétől függ. Az általánosítottabb és standardizáltabb változók közötti kapcsolatok megértéséhez a korrelációt is érdemes figyelembe venni, mivel ez a kovariancia normalizált változata.
-                </p>
-                <h2 class="text-xl font-bold">Korreláció</h2>
-                <p>
-                    A korreláció egy statisztikai mérőszám, amely azt méri, hogy két változó közötti lineáris kapcsolat milyen erős és irányú. Azaz a korreláció jelzi, hogy az egyik változó hogyan változik a másikkal összefüggésben.
-                </p>
-                <p>
-                    \[ \text{cor}(X, Y) = \frac{\text{cov}(X, Y)}{\sigma_X \cdot \sigma_Y} \]
-                </p>
-                <ul class="list-disc pl-4">
-                    <li>cor(X,Y) a Pearson-korreláció X és Y között,</li>
-                    <li>cov(X,Y) a kovariancia X és Y között,</li>
-                    <li>
-                        σ<sub>X</sub>és σ<sub>Y</sub> pedig a standard eltérések (szórások) X és Y esetében.
-                    </li>
-                </ul>
-                <p>
-                    A korreláció tehát azt mutatja meg, hogy a változók közötti kapcsolat milyen erős és milyen irányú. Fontos megjegyezni, hogy a korreláció csak lineáris kapcsolatokat mutat ki, tehát ha a kapcsolat nem lineáris, a korreláció nem feltétlenül ad pontos képet.
-                </p>
-            </div>
-            <div class="w-2/3">
-                <pre>
+    <div id="covariance" class="flex gap-2 mt-8">
+        <div class="w-1/3">
+            <h2 class="text-xl font-bold">Kovariancia</h2>
+            <p>
+                A kovariancia egy statisztikai mérték, amely azt mutatja meg, hogy két változó milyen mértékben változik
+                együtt. Konkrétabban, a kovariancia azt méri, hogy két változó mennyire követi egymást: az egyik változó
+                növekedése vagy csökkenése mennyire jár együtt a másik változó növekedésével vagy csökkenésével.</p>
+            <p>
+                \[ \text{cov}(X, Y) = \frac{\sum_{i=1}^{n} (x_i - \bar{X})(y_i - \bar{Y})}{n} \]
+            </p>
+            <ul class="list-disc pl-4">
+                <li>cov(X,Y) a kovariancia X és Y között,</li>
+                <li>x<sub>i</sub> és y<sub>i</sub> az egyes megfigyelések értékei,</li>
+                <li class="flex items-center"><span class="text-sm pr-2">\[ \bar{X} \]</span> és <span
+                        class="text-sm px-2">\[ \bar{Y} \]</span> a megfigyelések átlaga </li>
+                <li>n a megfigyelések száma.</li>
+            </ul>
+            <p>
+                A kovariancia értéke lehet pozitív, negatív vagy nulla:
+            </p>
+            <ul class="list-decimal pl-4">
+                <li>Pozitív kovariancia:<br>
+                    Ha X és Y pozitívan korrelálnak, akkor növekvő tendencia figyelhető meg. Azaz, amikor egyik változó
+                    növekszik, a másik is nagy valószínűséggel növekszik, és fordítva.
+                </li>
+                <li>Negatív kovariancia:<br>
+                    Ha X és Y negatívan korrelálnak, akkor csökkenő tendencia figyelhető meg. Azaz, amikor egyik változó
+                    növekszik, a másik valószínűleg csökken, és fordítva.
+                </li>
+                <li>Nulla kovariancia:<br>
+                    Ha X és Y között nincs korreláció, akkor a kovariancia nulla.
+                </li>
+            </ul>
+            <p>
+                A kovarianciát széles körben használják a statisztikában és a pénzügyi elemzésekben. Például:
+            </p>
+            <ul class="list-decimal pl-4">
+                <li>
+                    Pénzügyi elemzések: A kovariancia segíthet megérteni, hogy két pénzügyi eszköz (például részvények)
+                    árfolyama hogyan változik együtt. Pozitív kovariancia esetén, ha az egyik eszköz ára nő, a másik ára
+                    is nagy valószínűséggel nő. Negatív kovariancia esetén, ha az egyik eszköz ára nő, a másik ára
+                    valószínűleg csökken.
+                </li>
+                <li>
+                    Portfóliókezelés: A kovariancia segíthet az eszközök közötti diverzifikáció mértékének
+                    értékelésében. Azok az eszközök, amelyek negatív kovarianciával rendelkeznek, segíthetnek
+                    csökkenteni a portfólió kockázatát.
+                </li>
+                <li>
+                    Gazdasági és társadalmi kutatások: A kovariancia segíthet feltárni a különböző változók közötti
+                    kapcsolatokat, például a jövedelem és az oktatás közötti kapcsolatokat.
+                </li>
+            </ul>
+            <p>
+                Fontos megjegyezni, hogy a kovariancia nem normalizált, tehát az értéke a bemeneti változók
+                mértékegységétől függ. Az általánosítottabb és standardizáltabb változók közötti kapcsolatok
+                megértéséhez a korrelációt is érdemes figyelembe venni, mivel ez a kovariancia normalizált változata.
+            </p>
+            <h2 class="text-xl font-bold">Korreláció</h2>
+            <p>
+                A korreláció egy statisztikai mérőszám, amely azt méri, hogy két változó közötti lineáris kapcsolat
+                milyen erős és irányú. Azaz a korreláció jelzi, hogy az egyik változó hogyan változik a másikkal
+                összefüggésben.
+            </p>
+            <p>
+                \[ \text{cor}(X, Y) = \frac{\text{cov}(X, Y)}{\sigma_X \cdot \sigma_Y} \]
+            </p>
+            <ul class="list-disc pl-4">
+                <li>cor(X,Y) a Pearson-korreláció X és Y között,</li>
+                <li>cov(X,Y) a kovariancia X és Y között,</li>
+                <li>
+                    σ<sub>X</sub>és σ<sub>Y</sub> pedig a standard eltérések (szórások) X és Y esetében.
+                </li>
+            </ul>
+            <p>
+                A korreláció tehát azt mutatja meg, hogy a változók közötti kapcsolat milyen erős és milyen irányú.
+                Fontos megjegyezni, hogy a korreláció csak lineáris kapcsolatokat mutat ki, tehát ha a kapcsolat nem
+                lineáris, a korreláció nem feltétlenül ad pontos képet.
+            </p>
+        </div>
+        <div class="w-2/3">
+            <pre>
                     <code class="language-javascript">
 package main
 
@@ -736,40 +859,47 @@ func covariance(x, y []float64) float64 {
                         
                     </code>
                 </pre>
-            </div>
         </div>
+    </div>
 
-        <div id="probability" class="flex gap-2 mt-8">
-            <div class="w-1/3">
-                <h2 class="text-xl font-bold">A feltételes valószínűség</h2>
-                <p>
-                    A feltételes valószínűség azt mutatja meg, hogy egy esemény bekövetkezése mennyire valószínű, feltéve, hogy egy másik esemény már megtörtént vagy nem történt meg. Matematikailag a feltételes valószínűség a következő képlet segítségével számolható ki:
-                </p>
-                <p>
-\[ P(A|B) = \frac{P(A \cap B)}{P(B)} \]
-                </p>
-                <p>Ahol:</p>
-                <ul class="list-decimal pl-4">
-                    <li class="mt-2">
-                        P(A∣B) a feltételes valószínűség, vagyis az A esemény valószínűsége feltéve, hogy B esemény megtörtént.
-                    </li>
-                    <li class="mt-2">
-                        P(A∩B) a két esemény együttes valószínűsége, vagyis mindkét esemény bekövetkezése.
-                    </li>
-                    <li class="mt-2">
-                        P(B) pedig a B esemény valószínűsége.
-                    </li>
-                </ul>
-                <p class="mt-4">
-                    Például, ha A esemény az eső, és B esemény a felhős ég, akkor P(A∣B) azt mutatja meg, hogy mennyire valószínű az eső, ha már felhős az ég.
-                </p>
-            
-                <p class="mt-4">
-                    A feltételes valószínűség hasznos a statisztikában, valószínűségszámításban, és számos más területen is. Például pénzügyekben alkalmazzák a kockázatkezelés során, orvostudományban a diagnózisok és kezelések tervezésekor, valamint a gép tanulásban és mesterséges intelligenciában is, ahol modellek pontosságát értékelik és finomítják a rendelkezésre álló információk alapján.
-                </p>
-            </div>
-            <div class="w-2/3">
-                <pre>
+    <div id="probability" class="flex gap-2 mt-8">
+        <div class="w-1/3">
+            <h2 class="text-xl font-bold">A feltételes valószínűség</h2>
+            <p>
+                A feltételes valószínűség azt mutatja meg, hogy egy esemény bekövetkezése mennyire valószínű, feltéve,
+                hogy egy másik esemény már megtörtént vagy nem történt meg. Matematikailag a feltételes valószínűség a
+                következő képlet segítségével számolható ki:
+            </p>
+            <p>
+                \[ P(A|B) = \frac{P(A \cap B)}{P(B)} \]
+            </p>
+            <p>Ahol:</p>
+            <ul class="list-decimal pl-4">
+                <li class="mt-2">
+                    P(A∣B) a feltételes valószínűség, vagyis az A esemény valószínűsége feltéve, hogy B esemény
+                    megtörtént.
+                </li>
+                <li class="mt-2">
+                    P(A∩B) a két esemény együttes valószínűsége, vagyis mindkét esemény bekövetkezése.
+                </li>
+                <li class="mt-2">
+                    P(B) pedig a B esemény valószínűsége.
+                </li>
+            </ul>
+            <p class="mt-4">
+                Például, ha A esemény az eső, és B esemény a felhős ég, akkor P(A∣B) azt mutatja meg, hogy mennyire
+                valószínű az eső, ha már felhős az ég.
+            </p>
+
+            <p class="mt-4">
+                A feltételes valószínűség hasznos a statisztikában, valószínűségszámításban, és számos más területen is.
+                Például pénzügyekben alkalmazzák a kockázatkezelés során, orvostudományban a diagnózisok és kezelések
+                tervezésekor, valamint a gép tanulásban és mesterséges intelligenciában is, ahol modellek pontosságát
+                értékelik és finomítják a rendelkezésre álló információk alapján.
+            </p>
+        </div>
+        <div class="w-2/3">
+            <pre>
                     <code class="language-javascript">
 package main
 
@@ -793,51 +923,58 @@ func main() {
 }              
                     </code>
                 </pre>
-            </div>
         </div>
+    </div>
 
-        <div id="bayes" class="flex gap-2 mt-8">
-            <div class="w-1/3">
-                <h2 class="text-xl font-bold">Bayes-tétel</h2>
-                <p>
-                    A Bayes-tétel a feltételes valószínűség számítására szolgál.
-                </p>
-                <p>
-\[ P(A|B) = \frac{P(A|B) * P(A)}{P(B)} \]
-                </p>
-                <p>Ahol:</p>
-                <ul class="list-decimal pl-4">
-                    <li class="mt-2">
-                        P(A∣B) a feltételes valószínűség, vagyis az A esemény valószínűsége, feltéve, hogy B esemény már bekövetkezett.
-                    </li>
-                    <li class="mt-2">
-                        P(B∣A) a feltételes valószínűség, hogy B esemény megtörténik, ha A esemény már bekövetkezett.
-                    </li>
-                    <li class="mt-2">
-                        P(A) és P(B) pedig az A és B események független valószínűségei.
-                    </li>
-                </ul>
-                <p class="mt-4">
-                    A Bayes-tétel alkalmazása különböző területeken, például:
-                </p>
-                <ul class="list-decimal pl-4">
-                    <li>
-                        Statisztika és valószínűségszámítás: Segít frissíteni egy esemény valószínűségét, ha új információ áll rendelkezésre. Ez különösen hasznos a döntési folyamatokban és a prediktív modellekben.
-                    </li>
-                    <li>
-                        Gépi tanulás és mesterséges intelligencia: A Bayes-tételt alkalmazzák a Bayesiánus modellekben, amelyek a valószínűségi modellezésen alapulnak. Például a Naive Bayes osztályozó egy olyan algoritmus, amely a Bayes-tételt alkalmazza a különböző osztályokhoz tartozó valószínűségek számítására a tanítóadatok alapján.
-                    </li>
-                    <li>
-                        Orvostudomány: Használják például betegségek diagnosztizálásában, ahol a tesztek eredményeinek alapján frissíthetők a betegség valószínűségei.
-                    </li>
-                    <li>
-                        Pénzügyek és kockázatkezelés: A Bayes-tételt alkalmazzák a pénzügyi modellekben és kockázatértékelés során.
-                    </li>
-                </ul>
-                
-            </div>
-            <div class="w-2/3">
-                <pre>
+    <div id="bayes" class="flex gap-2 mt-8">
+        <div class="w-1/3">
+            <h2 class="text-xl font-bold">Bayes-tétel</h2>
+            <p>
+                A Bayes-tétel a feltételes valószínűség számítására szolgál.
+            </p>
+            <p>
+                \[ P(A|B) = \frac{P(A|B) * P(A)}{P(B)} \]
+            </p>
+            <p>Ahol:</p>
+            <ul class="list-decimal pl-4">
+                <li class="mt-2">
+                    P(A∣B) a feltételes valószínűség, vagyis az A esemény valószínűsége, feltéve, hogy B esemény már
+                    bekövetkezett.
+                </li>
+                <li class="mt-2">
+                    P(B∣A) a feltételes valószínűség, hogy B esemény megtörténik, ha A esemény már bekövetkezett.
+                </li>
+                <li class="mt-2">
+                    P(A) és P(B) pedig az A és B események független valószínűségei.
+                </li>
+            </ul>
+            <p class="mt-4">
+                A Bayes-tétel alkalmazása különböző területeken, például:
+            </p>
+            <ul class="list-decimal pl-4">
+                <li>
+                    Statisztika és valószínűségszámítás: Segít frissíteni egy esemény valószínűségét, ha új információ
+                    áll rendelkezésre. Ez különösen hasznos a döntési folyamatokban és a prediktív modellekben.
+                </li>
+                <li>
+                    Gépi tanulás és mesterséges intelligencia: A Bayes-tételt alkalmazzák a Bayesiánus modellekben,
+                    amelyek a valószínűségi modellezésen alapulnak. Például a Naive Bayes osztályozó egy olyan
+                    algoritmus, amely a Bayes-tételt alkalmazza a különböző osztályokhoz tartozó valószínűségek
+                    számítására a tanítóadatok alapján.
+                </li>
+                <li>
+                    Orvostudomány: Használják például betegségek diagnosztizálásában, ahol a tesztek eredményeinek
+                    alapján frissíthetők a betegség valószínűségei.
+                </li>
+                <li>
+                    Pénzügyek és kockázatkezelés: A Bayes-tételt alkalmazzák a pénzügyi modellekben és kockázatértékelés
+                    során.
+                </li>
+            </ul>
+
+        </div>
+        <div class="w-2/3">
+            <pre>
                     <code class="language-javascript">
 package main
 
@@ -860,56 +997,60 @@ func main() {
 }            
                     </code>
                 </pre>
-            </div>
         </div>
+    </div>
 
-        <div id="linear-regression" class="flex gap-2 mt-8">
-            <div class="w-1/3">
-                <h2 class="text-xl font-bold">A lineáris regresszió</h2>
-                <p>
-                    A lineáris regresszió egy statisztikai módszer, amelyet használnak a függő változó és egy vagy több független változó közötti lineáris kapcsolat modellezésére és elemzésére. Célja annak megértése, hogy az egyik vagy több független változó hogyan befolyásolja a függő változót.
-                    <br><br>
-                    A lineáris regresszió matematikai képletét a következőképpen írhatjuk le egy egyszerű lineáris regresszió esetében (egy független változó):
-                </p>
-                <p>
-                    \[ Y = b_0 + b_1 \cdot X + \varepsilon \]
-                </p>
-                <p>Ahol:</p>
-                <ul class="list-decimal pl-4">
-                    <li class="mt-2">
-                        Y a függő változó (kimeneti változó),
-                    </li>
-                    <li class="mt-2">
-                        X a független változó (bemeneti változó),
-                    </li>
-                    <li class="mt-2">
-                        b<sub>0</sub> és b<sub>1</sub> a regressziós együtthatók (vagy súlyok), amelyek a modell paramétereit jelentik,
-                    </li>
-                    <li>
-                        ε a hiba vagy zaj, amely az észlelt és a tényleges érték közötti különbségeket jelenti.
-                    </li>
-                </ul>
-                <p class="mt-4">
-                    A lineáris regresszió alkalmazható, amikor a következő feltételek teljesülnek:
-                </p>
-                <ul class="list-decimal pl-4">
-                    <li>
-                        Lineáris kapcsolat: A függő és független változók közötti kapcsolat lineáris.
-                    </li>
-                    <li>
-                        A hibák varianciája azonos minden független változó értéke mellett.
-                    </li>
-                    <li>
-                        Normalitás: Az hibák eloszlása közel normális.
-                    </li>
-                    <li>
-                        Függetlenség: Az egyes megfigyeléseknek függetleneknek kell lenniük egymástól.
-                    </li>
-                </ul>
-                
-            </div>
-            <div class="w-2/3">
-                <pre>
+    <div id="linear-regression" class="flex gap-2 mt-8">
+        <div class="w-1/3">
+            <h2 class="text-xl font-bold">A lineáris regresszió</h2>
+            <p>
+                A lineáris regresszió egy statisztikai módszer, amelyet használnak a függő változó és egy vagy több
+                független változó közötti lineáris kapcsolat modellezésére és elemzésére. Célja annak megértése, hogy az
+                egyik vagy több független változó hogyan befolyásolja a függő változót.
+                <br><br>
+                A lineáris regresszió matematikai képletét a következőképpen írhatjuk le egy egyszerű lineáris
+                regresszió esetében (egy független változó):
+            </p>
+            <p>
+                \[ Y = b_0 + b_1 \cdot X + \varepsilon \]
+            </p>
+            <p>Ahol:</p>
+            <ul class="list-decimal pl-4">
+                <li class="mt-2">
+                    Y a függő változó (kimeneti változó),
+                </li>
+                <li class="mt-2">
+                    X a független változó (bemeneti változó),
+                </li>
+                <li class="mt-2">
+                    b<sub>0</sub> és b<sub>1</sub> a regressziós együtthatók (vagy súlyok), amelyek a modell
+                    paramétereit jelentik,
+                </li>
+                <li>
+                    ε a hiba vagy zaj, amely az észlelt és a tényleges érték közötti különbségeket jelenti.
+                </li>
+            </ul>
+            <p class="mt-4">
+                A lineáris regresszió alkalmazható, amikor a következő feltételek teljesülnek:
+            </p>
+            <ul class="list-decimal pl-4">
+                <li>
+                    Lineáris kapcsolat: A függő és független változók közötti kapcsolat lineáris.
+                </li>
+                <li>
+                    A hibák varianciája azonos minden független változó értéke mellett.
+                </li>
+                <li>
+                    Normalitás: Az hibák eloszlása közel normális.
+                </li>
+                <li>
+                    Függetlenség: Az egyes megfigyeléseknek függetleneknek kell lenniük egymástól.
+                </li>
+            </ul>
+
+        </div>
+        <div class="w-2/3">
+            <pre>
                     <code class="language-javascript">
 package main
 
@@ -939,62 +1080,72 @@ func main() {
 }          
                     </code>
                 </pre>
-            </div>
         </div>
+    </div>
 
-        <div id="polinimal-regression" class="flex gap-2 mt-8">
-            <div class="w-1/3">
-                <h2 class="text-xl font-bold">A polinomális regresszió</h2>
-                <p>
-                    A polinomális regresszió egy olyan regressziós módszer, amely a függő változót és a független változókat nem csak lineárisan, hanem egy vagy több polinomiális kifejezéssel is modellezi. A polinomális regresszió általános formája a következő:
-                </p>
-                <p>
-                    \[ Y = b_0 + b_1 \cdot X + b_2 \cdot X^2 + \ldots + b_n \cdot X^n + \varepsilon \]
-                </p>
-                <p>Ahol:</p>
-                <ul class="list-decimal pl-4">
-                    <li class="mt-2">
-                        Y a függő változó,
-                    </li>
-                    <li class="mt-2">
-                        X a független változó,
-                    </li>
-                    <li class="mt-2">
-                        b<sub>0</sub>, b<sub>1</sub>, b<sub>2</sub>,...,b<sub>n</sub> a regressziós együtthatók (súlyok),
-                    </li>
-                    <li>
-                        n a polinom foka (a legmagasabb hatvány).
-                    </li>
-                </ul>
-                <p class="mt-4">
-                    A polinomális regresszió általában akkor használatos, amikor a lineáris regresszió nem tudja megfelelően modellezni az adatokat, és látható, hogy a függvény alakja nem lineáris. Tehát, ha az adatok között nem csak egyenes vonal látható, hanem görbék vagy egyéb nem lineáris alakzatok is, akkor a polinomális regresszió lehet hatékonyabb.
-                </p>
-                <p>
-                    Polinomális regressziót például alkalmazzák:
-                </p>
-                <ul class="list-decimal pl-4">
-                    <li>
-                        Fizikai modellezés: Amikor a kapcsolat a függő és független változók között bonyolultabb fizikai összefüggések alapján jön létre.
-                    </li>
-                    <li>
-                        Időbeli adatok elemzése: Ha az adatokban időbeli változásokat kell modellezni, ahol a kapcsolat nem feltétlenül lineáris.
-                    </li>
-                    <li>
-                        Műszaki tervezés: Az anyagtulajdonságok és tervezési változók közötti kapcsolatok modellezésére.
-                    </li>
-                    <li>
-                        Biológiai kutatások: A biológiai folyamatok vagy populációk dinamikájának modellezése.
-                    </li>
-                    <li>
-                        Kémiai reakciók modellezése: Ha a reakciók összetettebb összefüggéseket mutatnak.
-                    </li>
-                </ul>
-                <p>
-                    Fontos azonban megjegyezni, hogy a polinomális regressziót nem szabad túlzottan komplex modellek létrehozására használni, mert ez könnyen vezethet az adatok túltanításához (overfitting). Túltanítás esetén a modell túl jól illeszkedik a tanítóadatokhoz, de általánosítási képessége romlik, és nem teljesíti jól az új adatokon.
-                </p>
-            </div>
-            <div class="w-2/3">
-                <pre>
+    <div id="polinimal-regression" class="flex gap-2 mt-8">
+        <div class="w-1/3">
+            <h2 class="text-xl font-bold">A polinomális regresszió</h2>
+            <p>
+                A polinomális regresszió egy olyan regressziós módszer, amely a függő változót és a független változókat
+                nem csak lineárisan, hanem egy vagy több polinomiális kifejezéssel is modellezi. A polinomális
+                regresszió általános formája a következő:
+            </p>
+            <p>
+                \[ Y = b_0 + b_1 \cdot X + b_2 \cdot X^2 + \ldots + b_n \cdot X^n + \varepsilon \]
+            </p>
+            <p>Ahol:</p>
+            <ul class="list-decimal pl-4">
+                <li class="mt-2">
+                    Y a függő változó,
+                </li>
+                <li class="mt-2">
+                    X a független változó,
+                </li>
+                <li class="mt-2">
+                    b<sub>0</sub>, b<sub>1</sub>, b<sub>2</sub>,...,b<sub>n</sub> a regressziós együtthatók (súlyok),
+                </li>
+                <li>
+                    n a polinom foka (a legmagasabb hatvány).
+                </li>
+            </ul>
+            <p class="mt-4">
+                A polinomális regresszió általában akkor használatos, amikor a lineáris regresszió nem tudja megfelelően
+                modellezni az adatokat, és látható, hogy a függvény alakja nem lineáris. Tehát, ha az adatok között nem
+                csak egyenes vonal látható, hanem görbék vagy egyéb nem lineáris alakzatok is, akkor a polinomális
+                regresszió lehet hatékonyabb.
+            </p>
+            <p>
+                Polinomális regressziót például alkalmazzák:
+            </p>
+            <ul class="list-decimal pl-4">
+                <li>
+                    Fizikai modellezés: Amikor a kapcsolat a függő és független változók között bonyolultabb fizikai
+                    összefüggések alapján jön létre.
+                </li>
+                <li>
+                    Időbeli adatok elemzése: Ha az adatokban időbeli változásokat kell modellezni, ahol a kapcsolat nem
+                    feltétlenül lineáris.
+                </li>
+                <li>
+                    Műszaki tervezés: Az anyagtulajdonságok és tervezési változók közötti kapcsolatok modellezésére.
+                </li>
+                <li>
+                    Biológiai kutatások: A biológiai folyamatok vagy populációk dinamikájának modellezése.
+                </li>
+                <li>
+                    Kémiai reakciók modellezése: Ha a reakciók összetettebb összefüggéseket mutatnak.
+                </li>
+            </ul>
+            <p>
+                Fontos azonban megjegyezni, hogy a polinomális regressziót nem szabad túlzottan komplex modellek
+                létrehozására használni, mert ez könnyen vezethet az adatok túltanításához (overfitting). Túltanítás
+                esetén a modell túl jól illeszkedik a tanítóadatokhoz, de általánosítási képessége romlik, és nem
+                teljesíti jól az új adatokon.
+            </p>
+        </div>
+        <div class="w-2/3">
+            <pre>
                     <code class="language-javascript">
 package main
 
@@ -1071,62 +1222,71 @@ func printRegressionResults(coefficients mat.VecDense) {
 }
                     </code>
                 </pre>
-            </div>
         </div>
+    </div>
 
-        <div id="polinimal-regression" class="flex gap-2 mt-8">
-            <div class="w-1/3">
-                <h2 class="text-xl font-bold">A többszörös regresszió</h2>
-                <p>
-                    A többszörös regresszió olyan statisztikai módszer, amely több független változóval modellezi a függő változót. A többszörös regresszió általános formája a következő:
-                </p>
-                <p>
-                    \[ Y = b_0 + b_1 \cdot X + b_2 \cdot X_2 + \ldots + b_k \cdot X_k + \varepsilon \]
-                </p>
-                <p>Ahol:</p>
-                <ul class="list-decimal pl-4">
-                    <li class="mt-2">
-                        Y a függő változó,
-                    </li>
-                    <li class="mt-2">
-                        X<sub>1</sub>, X<sub>2</sub>, X<sub>3</sub>,...,X<sub>k</sub>
-                    </li>
-                    <li class="mt-2">
-                        b<sub>0</sub>, b<sub>1</sub>, b<sub>2</sub>,...,b<sub>n</sub> a regressziós együtthatók (súlyok),
-                    </li>
-                    <li>
-                        ε a hiba vagy zaj.
-                    </li>
-                </ul>
-                <p class="mt-4">
-                    A többszörös regressziót akkor alkalmazzuk, amikor azt feltételezzük, hogy a függő változó több független változótól függ. Ezenkívül a többszörös regresszió hasznos lehet az olyan összetett kapcsolatok modellezésére is, ahol a függő változót nem lehet egyetlen független változóval jól leírni.
-                </p>
-                <p>
-                    A többszörös regresszió alkalmazásának néhány példa:
-                </p>
-                <ul class="list-decimal pl-4">
-                    <li>
-                        Pénzügyek és gazdaság: Az egyidejűleg ható gazdasági változók (például GDP, infláció, kamatlábak) hatásának modellezése.
-                    </li>
-                    <li>
-                        Orvostudomány és egészségügy: Több tényező hatásának elemzése a betegségek vagy egészségügyi állapotok esetében.
-                    </li>
-                    <li>
-                        Műszaki tervezés: Az anyagtulajdonságok és tervezési változók közötti kapcsolatok modellezésére.
-                    </li>
-                    <li>
-                        Marketing és piackutatás: A termékértékesítési adatok elemzése, ahol több marketingtényező (pl. reklámkiadások, árak, promóciók) együttes hatását kell vizsgálni.
-                    </li>
-                    <li>
-                        Mérnöki: Összetett rendszerek tervezése, ahol több változó befolyásolja az eredményt.
-                    </li>
-                </ul>
-                <p>
-                    Fontos azonban megjegyezni, hogy a polinomális regressziót nem szabad túlzottan komplex modellek létrehozására használni, mert ez könnyen vezethet az adatok túltanításához (overfitting). Túltanítás esetén a modell túl jól illeszkedik a tanítóadatokhoz, de általánosítási képessége romlik, és nem teljesíti jól az új adatokon.
-                </p>
-            </div>
-            <div class="w-2/3">
-                <pre>
+    <div id="polinimal-regression" class="flex gap-2 mt-8">
+        <div class="w-1/3">
+            <h2 class="text-xl font-bold">A többszörös regresszió</h2>
+            <p>
+                A többszörös regresszió olyan statisztikai módszer, amely több független változóval modellezi a függő
+                változót. A többszörös regresszió általános formája a következő:
+            </p>
+            <p>
+                \[ Y = b_0 + b_1 \cdot X + b_2 \cdot X_2 + \ldots + b_k \cdot X_k + \varepsilon \]
+            </p>
+            <p>Ahol:</p>
+            <ul class="list-decimal pl-4">
+                <li class="mt-2">
+                    Y a függő változó,
+                </li>
+                <li class="mt-2">
+                    X<sub>1</sub>, X<sub>2</sub>, X<sub>3</sub>,...,X<sub>k</sub>
+                </li>
+                <li class="mt-2">
+                    b<sub>0</sub>, b<sub>1</sub>, b<sub>2</sub>,...,b<sub>n</sub> a regressziós együtthatók (súlyok),
+                </li>
+                <li>
+                    ε a hiba vagy zaj.
+                </li>
+            </ul>
+            <p class="mt-4">
+                A többszörös regressziót akkor alkalmazzuk, amikor azt feltételezzük, hogy a függő változó több
+                független változótól függ. Ezenkívül a többszörös regresszió hasznos lehet az olyan összetett
+                kapcsolatok modellezésére is, ahol a függő változót nem lehet egyetlen független változóval jól leírni.
+            </p>
+            <p>
+                A többszörös regresszió alkalmazásának néhány példa:
+            </p>
+            <ul class="list-decimal pl-4">
+                <li>
+                    Pénzügyek és gazdaság: Az egyidejűleg ható gazdasági változók (például GDP, infláció, kamatlábak)
+                    hatásának modellezése.
+                </li>
+                <li>
+                    Orvostudomány és egészségügy: Több tényező hatásának elemzése a betegségek vagy egészségügyi
+                    állapotok esetében.
+                </li>
+                <li>
+                    Műszaki tervezés: Az anyagtulajdonságok és tervezési változók közötti kapcsolatok modellezésére.
+                </li>
+                <li>
+                    Marketing és piackutatás: A termékértékesítési adatok elemzése, ahol több marketingtényező (pl.
+                    reklámkiadások, árak, promóciók) együttes hatását kell vizsgálni.
+                </li>
+                <li>
+                    Mérnöki: Összetett rendszerek tervezése, ahol több változó befolyásolja az eredményt.
+                </li>
+            </ul>
+            <p>
+                Fontos azonban megjegyezni, hogy a polinomális regressziót nem szabad túlzottan komplex modellek
+                létrehozására használni, mert ez könnyen vezethet az adatok túltanításához (overfitting). Túltanítás
+                esetén a modell túl jól illeszkedik a tanítóadatokhoz, de általánosítási képessége romlik, és nem
+                teljesíti jól az új adatokon.
+            </p>
+        </div>
+        <div class="w-2/3">
+            <pre>
                     <code class="language-javascript">
 package main
 
@@ -1193,16 +1353,16 @@ func printRegressionResults(coefficients mat.VecDense) {
 }
                     </code>
                 </pre>
-            </div>
         </div>
     </div>
+</div>
 </div>
 {{end}}
 
 {{define "js"}}
 <script>
     function changePage(statName, pageNumber) {
-      document.getElementById(statName).innerText = pageNumber;
+        document.getElementById(statName).innerText = pageNumber;
     }
 </script>
 {{end}}

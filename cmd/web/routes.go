@@ -13,6 +13,7 @@ func (app *application) routes() http.Handler {
 	mux.Get("/statistics", app.StatisticsPage)
 	mux.Get("/statistics/mean", app.Mean)
 	mux.Get("/statistics/median", app.Median)
+	mux.Get("/statistics/std-deviation-variance", app.StdVar)
 
 	fileServer := http.FileServer(http.Dir("./static/"))
 	mux.Handle("/static/*", http.StripPrefix("/static", fileServer))
