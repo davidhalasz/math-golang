@@ -850,8 +850,8 @@ func main() {
             </div>
             <div :class="{ 'active': activeTab === 1 }" x-show.transition.in.opacity.duration.600="activeTab === 1">
                 <pre><code class="language-javascript">
-// Egy weboldalnak átlagosan napi 500 látogatója van.
-// Mennyi a valószínűsége annak, hogy egy adott napon 550 látogatója lesz?
+# Egy weboldalnak átlagosan napi 500 látogatója van.
+# Mennyi a valószínűsége annak, hogy egy adott napon 550 látogatója lesz?
 
 from scipy.stats import poisson
 import matplotlib.pyplot as plt
@@ -1197,9 +1197,9 @@ func main() {
             </div>
             <div :class="{ 'active': activeTab === 1 }" x-show.transition.in.opacity.duration.600="activeTab === 1">
                 <pre><code class="language-javascript">
-// Let's generate some fake data. 
-// "totals" contains the number of people in each group
-// "purchases" contains the total number of the things purchased by people in each age group
+# Let's generate some fake data. 
+# "totals" contains the number of people in each group
+# "purchases" contains the total number of the things purchased by people in each age group
 
 from numpy import random
 random.seed(0)
@@ -1216,24 +1216,24 @@ for _ in range(100000):
         totalPurchases += 1
         purchases[ageDecade] += 1
 
-// Now Let's play with conditional probability
-// First let's compute P(E|F), where E is "purchase" and F is "you are in your 30's".
-// The probability of someone in their 30's  buying something is just the percentage 
-// of how many 30-year-olds bought something
+# Now Let's play with conditional probability
+# First let's compute P(E|F), where E is "purchase" and F is "you are in your 30's".
+# The probability of someone in their 30's  buying something is just the percentage 
+# of how many 30-year-olds bought something
 
 PEF = float(purchases[30]) / float(totals[30])
 print('P(purchase | 30's): ' + str(PEF))
 
-// P(F) is just the probability of being 30 in this data set
+# P(F) is just the probability of being 30 in this data set
 PF = float(totals[30]) / 100000.0
 print('P(30's): ' + str(PF))
 
-// P(E) is the overall probability of buying something, regardless of your age
+# P(E) is the overall probability of buying something, regardless of your age
 PE = float(totalPurchases) / 100000.0
 print('P(purchase): ' + str(PE))
 
-// If E and F were independent, then we would expect P(E | F) to be about the same as P(E).
-// But they are not. So that tells us that E and F are depend.
+# If E and F were independent, then we would expect P(E | F) to be about the same as P(E).
+# But they are not. So that tells us that E and F are depend.
                 </code></pre>
             </div>
         </div>
@@ -1286,14 +1286,77 @@ print('P(purchase): ' + str(PE))
             </ul>
 
         </div>
-        <div class="w-2/3">
-            <pre>
-                    <code class="language-javascript">
+        <div class="w-2/3" class="tab-wrapper" x-data="{ activeTab: 0 }">
+            <div class="flex gap-2">
+                <div @click="activeTab = 0"
+                    class="flex items-center justify-center tab-control w-[180px] px-4 py-2 text-center rounded-md border border-slate-800 cursor-pointer"
+                    :class="{ 'bg-slate-800 text-slate-100': activeTab === 0 }">GO</div>
+                <div @click="activeTab = 1"
+                    class="flex items-center justify-center tab-control w-[180px] px-4 py-2 text-center rounded-md border border-slate-800 cursor-pointer"
+                    :class="{ 'bg-slate-800 text-slate-100': activeTab === 1 }">Python</div>
+            </div>
+            <div :class="{ 'active': activeTab === 0 }" x-show.transition.in.opacity.duration.600="activeTab === 0">
+                <pre><code class="language-javascript">
+package main
 
+import (
+    "fmt"
+    "time"
+    "math/rand"
+)
+                                                                
+func main() {
+    // Let's say we have a drug test that can accurately
+	// identify users of a drug 99% of the time, and
+	// accurately has a negative result for 99% of non-users.
+	// But only 0.3% of the overall population actually uses this drog.
 
+	// P(Positive∣User) is the accuracy of the test for users, which is 0.99.
+	// P(User) is the prevalence of drug users in the population, which is 0.003 (0.3% of the population).
+	// P(Positive∣Non-user) is the probability of testing positive given that the person is a non-user,
+	// which is 1 − accuracy for non-users
+	accuracyUser := 0.99
+	prevalenceUser := 0.003
 
-                    </code>
-                </pre>
+	// Calculate probabilities
+	positiveGivenUser := accuracyUser
+	positiveGivenNonUser := 1 - 0.99
+	nonUser := 1 - prevalenceUser
+	fmt.Printf("positiveGivenNonUser: %.4f\n", positiveGivenNonUser)
+	fmt.Printf("nonUser: %.4f\n", nonUser)
+
+	// P(Positive) can be calculated using the law of total probability:
+	// P(Positive) = P(Positive∣User)×P(User) + P(Positive∣Non-user)×P(Non-user)
+	positive := (positiveGivenUser * prevalenceUser) + (positiveGivenNonUser * nonUser)
+	fmt.Printf("P(Positive): %.4f\n", positive)
+
+	// Bayes' Theorem
+	probabilityUserGivenPositive := (positiveGivenUser * prevalenceUser) / positive
+	fmt.Printf("Probability of being a user given a positive test result: %.4f\n", probabilityUserGivenPositive)
+	// So the odds of someone being an actual user of the drug given
+	// that they tested positive is only 22.95%
+}
+                </code></pre>
+            </div>
+            <div :class="{ 'active': activeTab === 1 }" x-show.transition.in.opacity.duration.600="activeTab === 1">
+                <pre><code class="language-javascript">
+# Given probabilities
+accuracy_user = 0.99
+accuracy_non_user = 0.01
+prevalence_user = 0.003
+
+# Calculate probabilities
+positive_given_user = accuracy_user
+non_user = 1 - prevalence_user
+
+positive = (positive_given_user * prevalence_user) + (accuracy_non_user * non_user)
+
+# Bayes' Theorem
+probability_user_given_positive = (positive_given_user * prevalence_user) / positive
+
+print(f"Probability of being a user given a positive test result: {probability_user_given_positive:.4f}")
+                </code></pre>
+            </div>
         </div>
     </div>
 
@@ -1304,6 +1367,8 @@ print('P(purchase): ' + str(PE))
                 A lineáris regresszió egy statisztikai módszer, amelyet használnak a függő változó és egy vagy több
                 független változó közötti lineáris kapcsolat modellezésére és elemzésére. Célja annak megértése, hogy az
                 egyik vagy több független változó hogyan befolyásolja a függő változót.
+                <br><br>
+                A lineáris regresszió lényegében egy egyenes vonal illesztése az adatpontokhoz.
                 <br><br>
                 A lineáris regresszió matematikai képletét a következőképpen írhatjuk le egy egyszerű lineáris
                 regresszió esetében (egy független változó):
