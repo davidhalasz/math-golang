@@ -16,27 +16,37 @@ import (
 	"gonum.org/v1/gonum/stat/distuv"
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
+	"gonum.org/v1/plot/plotutil"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
 	"gonum.org/v1/plot/vg/vgimg"
 )
 
 type GnumPlotResponse struct {
-	MeanPNG        []byte  `json:"mean_png"`
-	Mean           float64 `json:"mean"`
-	MedianPNG      []byte  `json:"median_png"`
-	Median         float64 `json:"median"`
-	StdDev         float64 `json:"std_dev"`
-	Variance       float64 `json:"variance"`
-	StdDevVarPNG   []byte  `json:"std_dev_var_png"`
-	PDFPNG         []byte  `json:"pdf_png"`
-	PMFPNG         []byte  `json:"pmf_png"`
-	PoissonPNG     []byte  `json:"poisson_png"`
-	Covariance1PNG []byte  `json:"covariance1_png"`
-	Covariance1    float64 `json:"covariance1"`
-	Covariance2PNG []byte  `json:"covariance2_png"`
-	Covariance2    float64 `json:"covariance2"`
-	Correlation    float64 `json:"correlation"`
+	MeanPNG             []byte  `json:"mean_png"`
+	Mean                float64 `json:"mean"`
+	MedianPNG           []byte  `json:"median_png"`
+	Median              float64 `json:"median"`
+	StdDev              float64 `json:"std_dev"`
+	Variance            float64 `json:"variance"`
+	StdDevVarPNG        []byte  `json:"std_dev_var_png"`
+	PDFPNG              []byte  `json:"pdf_png"`
+	PMFPNG              []byte  `json:"pmf_png"`
+	PoissonPNG          []byte  `json:"poisson_png"`
+	Covariance1PNG      []byte  `json:"covariance1_png"`
+	Covariance1         float64 `json:"covariance1"`
+	Covariance2PNG      []byte  `json:"covariance2_png"`
+	Covariance2         float64 `json:"covariance2"`
+	Correlation         float64 `json:"correlation"`
+	LinearRegressionR   float64 `json:"linearRegressionR"`
+	LinearRegression    []byte  `json:"linearRegression"`
+	PolynomalRegression []byte  `json:"polynomalRegression"`
+}
+
+var plotColor = map[string]uint8{
+	"r": uint8(71),
+	"g": uint8(85),
+	"b": uint8(105),
 }
 
 func (app *application) HomePage(w http.ResponseWriter, r *http.Request) {
@@ -80,11 +90,7 @@ func (app *application) Mean(w http.ResponseWriter, r *http.Request) {
 	copy(values, incomes)
 	histogram, _ := plotter.NewHist(values, 50)
 
-	red := uint8(71)
-	green := uint8(85)
-	blue := uint8(105)
-
-	histogram.FillColor = color.NRGBA{red, green, blue, 255}
+	histogram.FillColor = color.NRGBA{plotColor["r"], plotColor["g"], plotColor["b"], 255}
 
 	p.Add(histogram)
 
@@ -171,11 +177,7 @@ func (app *application) Median(w http.ResponseWriter, r *http.Request) {
 	copy(values, incomes)
 	histogram, _ := plotter.NewHist(values, 50)
 
-	red := uint8(71)
-	green := uint8(85)
-	blue := uint8(105)
-
-	histogram.FillColor = color.NRGBA{red, green, blue, 255}
+	histogram.FillColor = color.NRGBA{plotColor["r"], plotColor["g"], plotColor["b"], 255}
 
 	p.Add(histogram)
 
@@ -231,11 +233,7 @@ func (app *application) StdVar(w http.ResponseWriter, r *http.Request) {
 	copy(values, incomes)
 	histogram, _ := plotter.NewHist(values, 50)
 
-	red := uint8(71)
-	green := uint8(85)
-	blue := uint8(105)
-
-	histogram.FillColor = color.NRGBA{red, green, blue, 255}
+	histogram.FillColor = color.NRGBA{plotColor["r"], plotColor["g"], plotColor["b"], 255}
 
 	p.Add(histogram)
 
@@ -283,10 +281,6 @@ func (app *application) PDF(w http.ResponseWriter, r *http.Request) {
 		pts[i].Y = dist.Prob(val)
 	}
 
-	red := uint8(71)
-	green := uint8(85)
-	blue := uint8(105)
-
 	// Create a plot
 	p := plot.New()
 	p.Title.Text = "Normal Distribution"
@@ -296,7 +290,7 @@ func (app *application) PDF(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	line.Color = color.NRGBA{red, green, blue, 255}
+	line.Color = color.NRGBA{plotColor["r"], plotColor["g"], plotColor["b"], 255}
 
 	p.Add(line)
 
@@ -364,10 +358,7 @@ func (app *application) Binomial(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	red := uint8(71)
-	green := uint8(85)
-	blue := uint8(105)
-	line.Color = color.NRGBA{red, green, blue, 255}
+	line.Color = color.NRGBA{plotColor["r"], plotColor["g"], plotColor["b"], 255}
 	pmf.Add(line)
 
 	imgCanvas := vgimg.New(vg.Points(800), vg.Points(400))
@@ -424,10 +415,7 @@ func (app *application) Poisson(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	red := uint8(71)
-	green := uint8(85)
-	blue := uint8(105)
-	line.Color = color.NRGBA{red, green, blue, 255}
+	line.Color = color.NRGBA{plotColor["r"], plotColor["g"], plotColor["b"], 255}
 	poisson.Add(line)
 
 	imgCanvas := vgimg.New(vg.Points(800), vg.Points(400))
@@ -494,9 +482,6 @@ func (app *application) CovCor(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Scatter plot 1
-	red := uint8(71)
-	green := uint8(85)
-	blue := uint8(105)
 
 	pts1 := make(plotter.XYs, len(pageSpeeds))
 	for i := range pts1 {
@@ -517,7 +502,7 @@ func (app *application) CovCor(w http.ResponseWriter, r *http.Request) {
 	p1.X.Label.Text = "Page Speeds"
 	p1.Y.Label.Text = "Purchase Amounts"
 
-	s1.Color = color.NRGBA{red, green, blue, 255}
+	s1.Color = color.NRGBA{plotColor["r"], plotColor["g"], plotColor["b"], 255}
 
 	imgCanvas1 := vgimg.New(vg.Points(800), vg.Points(400))
 	dc1 := draw.New(imgCanvas1)
@@ -552,7 +537,7 @@ func (app *application) CovCor(w http.ResponseWriter, r *http.Request) {
 	p2.X.Label.Text = "Page Speeds"
 	p2.Y.Label.Text = "Purchase Amounts"
 
-	s2.Color = color.NRGBA{red, green, blue, 255}
+	s2.Color = color.NRGBA{plotColor["r"], plotColor["g"], plotColor["b"], 255}
 
 	imgCanvas2 := vgimg.New(vg.Points(800), vg.Points(400))
 	dc2 := draw.New(imgCanvas2)
@@ -572,6 +557,87 @@ func (app *application) CovCor(w http.ResponseWriter, r *http.Request) {
 	correlation := correlation(pageSpeeds, purchaseAmount2)
 
 	svgResponse := GnumPlotResponse{Covariance1PNG: pngBuffer1.Bytes(), Covariance1: covResult1, Covariance2PNG: pngBuffer2.Bytes(), Covariance2: covResult2, Correlation: correlation}
+	jsonResponse, err := json.Marshal(svgResponse)
+	if err != nil {
+		fmt.Fprintln(w, "Error sending json:", err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(jsonResponse)
+}
+
+func (app *application) LinearRegression(w http.ResponseWriter, r *http.Request) {
+	// Generate 1000 random points
+	localRand := rand.New(rand.NewSource(0))
+	n := 1000
+	pageSpeeds := make([]float64, n)
+	purchaseAmount := make([]float64, n)
+
+	for i := 0; i < n; i++ {
+		pageSpeeds[i] = localRand.NormFloat64()*1.0 + 3.0
+		purchaseAmount[i] = 100.0 - (pageSpeeds[i]+localRand.NormFloat64()*0.1)*3.0
+	}
+
+	// Perform linear regression
+	slope, intercept := stat.LinearRegression(pageSpeeds, purchaseAmount, nil, false)
+
+	// Calculate R-squared value
+	rSquared := stat.RSquared(pageSpeeds, purchaseAmount, nil, slope, intercept)
+	fmt.Printf("R-squared: %f\n", rSquared)
+
+	// Create a plot
+	p := plot.New()
+
+	// Create points for the scatter plot
+	points := make(plotter.XYs, n)
+	for i := range pageSpeeds {
+		points[i].X = pageSpeeds[i]
+		points[i].Y = purchaseAmount[i]
+	}
+
+	// Create a scatter plot
+	scatter, err := plotter.NewScatter(points)
+	if err != nil {
+		log.Fatal(err)
+	}
+	scatter.Color = color.NRGBA{plotColor["r"], plotColor["g"], plotColor["b"], 255}
+
+	// Add scatter plot to the plot
+	p.Add(scatter)
+
+	// Create points for the linear regression line
+	line := plotter.NewFunction(func(x float64) float64 { return intercept*x + slope })
+	line.LineStyle.Width = vg.Points(3)
+	line.Color = plotutil.Color(0)
+
+	// Add linear regression line to the plot
+	p.Add(line)
+
+	// Set plot title and labels
+	p.Title.Text = "Linear Regression on Random Points"
+	p.X.Label.Text = "X"
+	p.Y.Label.Text = "Y"
+
+	// // Save the plot to a PNG file
+	// if err := p.Save(8*vg.Inch, 4*vg.Inch, "random_linear_regression.png"); err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	imgCanvas := vgimg.New(vg.Points(800), vg.Points(400))
+	dc := draw.New(imgCanvas)
+
+	p.Draw(dc)
+
+	var pngBuffer bytes.Buffer
+
+	err = png.Encode(&pngBuffer, imgCanvas.Image())
+	if err != nil {
+		log.Printf("error encoding PNG: %v\n", err)
+		return
+	}
+
+	svgResponse := GnumPlotResponse{LinearRegression: pngBuffer.Bytes(), LinearRegressionR: rSquared}
 	jsonResponse, err := json.Marshal(svgResponse)
 	if err != nil {
 		fmt.Fprintln(w, "Error sending json:", err)

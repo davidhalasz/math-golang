@@ -18,6 +18,7 @@ func (app *application) routes() http.Handler {
 	mux.Get("/statistics/binomial", app.Binomial)
 	mux.Get("/statistics/poisson", app.Poisson)
 	mux.Get("/statistics/covcor", app.CovCor)
+	mux.Get("/statistics/linear-regression", app.LinearRegression)
 
 	fileServer := http.FileServer(http.Dir("./static/"))
 	mux.Handle("/static/*", http.StripPrefix("/static", fileServer))

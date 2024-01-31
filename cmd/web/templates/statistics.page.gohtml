@@ -1411,37 +1411,131 @@ print(f"Probability of being a user given a positive test result: {probability_u
             </ul>
 
         </div>
-        <div class="w-2/3">
-            <pre>
-                    <code class="language-javascript">
+        <div class="w-2/3" class="tab-wrapper" x-data="{ activeTab: 0 }">
+            <div class="flex gap-2">
+                <div @click="activeTab = 0"
+                    class="flex items-center justify-center tab-control w-[180px] px-4 py-2 text-center rounded-md border border-slate-800 cursor-pointer"
+                    :class="{ 'bg-slate-800 text-slate-100': activeTab === 0 }">GO</div>
+                <div @click="activeTab = 1"
+                    class="flex items-center justify-center tab-control w-[180px] px-4 py-2 text-center rounded-md border border-slate-800 cursor-pointer"
+                    :class="{ 'bg-slate-800 text-slate-100': activeTab === 1 }">Python</div>
+                <div @click="activeTab = 2"
+                    class="flex items-center justify-center tab-control w-[180px] px-4 py-2 text-center rounded-md border border-slate-800 cursor-pointer"
+                    :class="{ 'bg-slate-800 text-slate-100': activeTab === 2 }">Gonum plot</div>
+            </div>
+            <div :class="{ 'active': activeTab === 0 }" x-show.transition.in.opacity.duration.600="activeTab === 0">
+                <pre><code class="language-javascript">
 package main
 
 import (
-    "fmt"
+	"fmt"
+	"image/color"
+	"image/png"
+    "math/rand"
+	"time"
+
+	"gonum.org/v1/gonum/stat"
+	"gonum.org/v1/plot"
+	"gonum.org/v1/plot/plotter"
 )
-                        
-unc linearRegression(x float64, b0 float64, b1 float64) float64 {
-    // Lineáris regresszió képlet: Y = b0 + b1 * X
-    y := b0 + b1*x
-    return y
-}
-                        
+                                       
 func main() {
-    // Független változó értéke
-    x := 5.0
+    // Generate 1000 random points
+	localRand := rand.New(rand.NewSource(0))
+	n := 1000
+	pageSpeeds := make([]float64, n)
+	purchaseAmount := make([]float64, n)
 
-    // Lineáris regresszió együtthatói
-    b0 := 2.0
-    b1 := 1.5
+	for i := 0; i < n; i++ {
+		pageSpeeds[i] = localRand.NormFloat64()*1.0 + 3.0
+		purchaseAmount[i] = 100.0 - (pageSpeeds[i]+localRand.NormFloat64()*0.1)*3.0
+	}
 
-    // Lineáris regresszió számítása
-    y := linearRegression(x, b0, b1)
+	// Perform linear regression
+	slope, intercept := stat.LinearRegression(pageSpeeds, purchaseAmount, nil, false)
 
-    // Eredmény kiíratása
-    fmt.Printf("A lineáris regresszió eredménye: %.2f\n", y)
-}          
-                    </code>
-                </pre>
+	// Calculate R-squared value
+    // if the R-squared almost 1 or equal to 1 that means that we have a really good fit
+	rSquared := stat.RSquared(pageSpeeds, purchaseAmount, nil, slope, intercept)
+	fmt.Printf("R-squared: %f\n", rSquared)
+
+	// Create a plot
+	p := plot.New()
+
+	// Create points for the scatter plot
+	points := make(plotter.XYs, n)
+	for i := range pageSpeeds {
+		points[i].X = pageSpeeds[i]
+		points[i].Y = purchaseAmount[i]
+	}
+
+	// Create a scatter plot
+	scatter, err := plotter.NewScatter(points)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Add scatter plot to the plot
+	p.Add(scatter)
+
+	// Create points for the linear regression line
+	line := plotter.NewFunction(func(x float64) float64 { return intercept*x + slope })
+	line.LineStyle.Width = vg.Points(3)
+	line.Color = plotutil.Color(0)
+
+	// Add linear regression line to the plot
+	p.Add(line)
+
+	// Set plot title and labels
+	p.Title.Text = "Linear Regression on Random Points"
+	p.X.Label.Text = "X"
+	p.Y.Label.Text = "Y"
+
+	// Save the plot to a PNG file
+	if err := p.Save(8*vg.Inch, 4*vg.Inch, "random_linear_regression.png"); err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("Plot saved as random_linear_regression.png")
+}
+                </code></pre>
+            </div>
+            <div :class="{ 'active': activeTab === 1 }" x-show.transition.in.opacity.duration.600="activeTab === 1">
+                <pre><code class="language-javascript">
+%matplotlib inline
+import numpy as np
+from pylab import *
+import matplotlib.pyplot as plt
+
+pageSpeeds = np.random.normal(3.0, 1.0, 1000)
+purchaseAmount = 100 - (pageSpeeds + np.random.normal(0, 0.1, 1000)) * 3
+
+slope, intercept, r_value, p_value, std_err = stats.linregress(pageSpeeds, purchaseAmount)
+r_value ** 2
+
+def predict(x):
+    return slope * x + intercept
+
+fitLine = predict(pageSpeeds)
+
+plt.scatter(pageSpeeds, purchaseAmount)
+plt.plot(pageSpeeds, fitLine, c='r')
+plt.show()
+                </code></pre>
+            </div>
+
+            <div :class="{ 'active': activeTab === 2 }" x-show.transition.in.opacity.duration.600="activeTab === 2">
+                <p class="pl-8 pt-8">R-squared: <span id="linearRegressionRTxt"></span></p>
+                <div class="w-full h-[400px] p-10">
+                    <img id="linearRegressionPNG" src="" alt="poisson">
+                </div>
+                <script>
+                    fetch('/statistics/linear-regression').then(response => response.json()).then(data => {
+                        document.getElementById('linearRegressionRTxt').innerText = data.linearRegressionR.toFixed(3);
+                        document.getElementById('linearRegressionPNG').src = "data:image/png;base64," + data.linearRegression;
+                    });
+                </script>
+            </div> 
         </div>
     </div>
 
@@ -1506,215 +1600,43 @@ func main() {
                 teljesíti jól az új adatokon.
             </p>
         </div>
-        <div class="w-2/3">
-            <pre>
-                    <code class="language-javascript">
-package main
+        <div class="w-2/3" class="tab-wrapper" x-data="{ activeTab: 0 }">
+            <div class="flex gap-2">
+                <div @click="activeTab = 0"
+                    class="flex items-center justify-center tab-control w-[180px] px-4 py-2 text-center rounded-md border border-slate-800 cursor-pointer"
+                    :class="{ 'bg-slate-800 text-slate-100': activeTab === 0 }">Python</div>
+                <div @click="activeTab = 1"
+                    class="flex items-center justify-center tab-control w-[180px] px-4 py-2 text-center rounded-md border border-slate-800 cursor-pointer"
+                    :class="{ 'bg-slate-800 text-slate-100': activeTab === 1 }">Matplot</div>
+            </div>
+            
+            <div :class="{ 'active': activeTab === 0 }" x-show.transition.in.opacity.duration.600="activeTab === 0">
+                <pre><code class="language-javascript">
+%matplotlib inline
+from pylab import *
+import numpy as np
+import matplotlib.pyplot as plt
 
-// A polinomális regresszió kiszámítása Golangban komplexebb lehet, 
-// különösen ha nem csak egy egyszerű modellt szeretnél alkalmazni. 
-// A Gonum csomagot használhatod a polinomális regresszióhoz, 
-// mivel ez egy kiterjedt numerikus és lineáris algebrai csomag. 
-// Az alábbi példa bemutat egy egyszerű másodfokú (kvadratikus) polinom regressziót:
+np.random.seed(2)
+pageSpeeds = np.random.normal(3.0, 1.0, 1000)
+purchaseAmount = np.random.normal(50.0, 10.0, 1000) / pageSpeeds
 
-import (
-    "fmt"
-    "log"
+x = np.array(pageSpeeds)
+y = np.array(purchaseAmount)
+p4 = np.poly1d(np.polyfit(x, y, 4))
 
-    "gonum.org/v1/gonum/floats"
-    "gonum.org/v1/gonum/mat"
-)
+xp = np.linspace(0, 7, 100)
+plt.scatter(x, y)
+plt.plot(xp, p4(xp), c='r')
+plt.show()
+                </code></pre>
+            </div>
 
-func main() {
-    // Adatok
-    xData := []float64{1, 2, 3, 4, 5}
-    yData := []float64{3, 7, 8, 12, 15}
-
-    // Polinomális regresszió foka
-    polynomialDegree := 2
-
-    // A bemeneti adatokat tartalmazó mátrix létrehozása
-    xMatrix := createInputMatrix(xData, polynomialDegree)
-
-    // A válaszokat tartalmazó vektor létrehozása
-    yVector := mat.NewVecDense(len(yData), yData)
-
-    // Regressziós együtthatók becslése
-    var regressionCoefficients mat.VecDense
-    if err := linearRegression(&regressionCoefficients, xMatrix, yVector); err != nil {
-        log.Fatal(err)
-    }
-
-    // Eredmény kiíratása
-    printRegressionResults(regressionCoefficients)
-}
-
-// createInputMatrix létrehozza a bemeneti mátrixot a megadott fokszámmal.
-func createInputMatrix(xData []float64, degree int) *mat.Dense {
-    xMatrix := make([][]float64, len(xData))
-    for i := range xMatrix {
-        xMatrix[i] = make([]float64, degree+1)
-        for j := 0; j <= degree; j++ {
-            xMatrix[i][j] = floats.Pow(xData[i], float64(j))
-        }
-    }
-    return mat.NewDense(len(xData), degree+1, floats.Join(xMatrix...))
-}
-
-// linearRegression kiszámolja a lineáris regressziót a mátrixok és vektorok alapján.
-func linearRegression(coefficients *mat.VecDense, xMatrix *mat.Dense, yVector *mat.VecDense) error {
-    var xT mat.Dense
-    xT.Clone(xMatrix.T())
-    var xTx mat.Dense
-    xTx.Mul(xT, xMatrix)
-
-    var xTy mat.VecDense
-    xTy.MulVec(xT, yVector)
-
-    err := coefficients.SolveVec(&xTx, &xTy)
-    return err
-}
-
-// printRegressionResults kiírja a regressziós együtthatókat.
-func printRegressionResults(coefficients mat.VecDense) {
-    fmt.Println("Regressziós együtthatók:")
-    for i := 0; i < coefficients.Len(); i++ {
-        fmt.Printf("b%d: %.4f\n", i, coefficients.AtVec(i))
-    }
-}
-                    </code>
-                </pre>
-        </div>
-    </div>
-
-    <div id="polinimal-regression" class="flex gap-2 mt-8">
-        <div class="w-1/3">
-            <h2 class="text-xl font-bold">A többszörös regresszió</h2>
-            <p>
-                A többszörös regresszió olyan statisztikai módszer, amely több független változóval modellezi a függő
-                változót. A többszörös regresszió általános formája a következő:
-            </p>
-            <p>
-                \[ Y = b_0 + b_1 \cdot X + b_2 \cdot X_2 + \ldots + b_k \cdot X_k + \varepsilon \]
-            </p>
-            <p>Ahol:</p>
-            <ul class="list-decimal pl-4">
-                <li class="mt-2">
-                    Y a függő változó,
-                </li>
-                <li class="mt-2">
-                    X<sub>1</sub>, X<sub>2</sub>, X<sub>3</sub>,...,X<sub>k</sub>
-                </li>
-                <li class="mt-2">
-                    b<sub>0</sub>, b<sub>1</sub>, b<sub>2</sub>,...,b<sub>n</sub> a regressziós együtthatók (súlyok),
-                </li>
-                <li>
-                    ε a hiba vagy zaj.
-                </li>
-            </ul>
-            <p class="mt-4">
-                A többszörös regressziót akkor alkalmazzuk, amikor azt feltételezzük, hogy a függő változó több
-                független változótól függ. Ezenkívül a többszörös regresszió hasznos lehet az olyan összetett
-                kapcsolatok modellezésére is, ahol a függő változót nem lehet egyetlen független változóval jól leírni.
-            </p>
-            <p>
-                A többszörös regresszió alkalmazásának néhány példa:
-            </p>
-            <ul class="list-decimal pl-4">
-                <li>
-                    Pénzügyek és gazdaság: Az egyidejűleg ható gazdasági változók (például GDP, infláció, kamatlábak)
-                    hatásának modellezése.
-                </li>
-                <li>
-                    Orvostudomány és egészségügy: Több tényező hatásának elemzése a betegségek vagy egészségügyi
-                    állapotok esetében.
-                </li>
-                <li>
-                    Műszaki tervezés: Az anyagtulajdonságok és tervezési változók közötti kapcsolatok modellezésére.
-                </li>
-                <li>
-                    Marketing és piackutatás: A termékértékesítési adatok elemzése, ahol több marketingtényező (pl.
-                    reklámkiadások, árak, promóciók) együttes hatását kell vizsgálni.
-                </li>
-                <li>
-                    Mérnöki: Összetett rendszerek tervezése, ahol több változó befolyásolja az eredményt.
-                </li>
-            </ul>
-            <p>
-                Fontos azonban megjegyezni, hogy a polinomális regressziót nem szabad túlzottan komplex modellek
-                létrehozására használni, mert ez könnyen vezethet az adatok túltanításához (overfitting). Túltanítás
-                esetén a modell túl jól illeszkedik a tanítóadatokhoz, de általánosítási képessége romlik, és nem
-                teljesíti jól az új adatokon.
-            </p>
-        </div>
-        <div class="w-2/3">
-            <pre>
-                    <code class="language-javascript">
-package main
-
-import (
-    "fmt"
-    "log"
-
-    "gonum.org/v1/gonum/floats"
-    "gonum.org/v1/gonum/mat"
-)
-
-func main() {
-    // Adatok
-    x1Data := []float64{1, 2, 3, 4, 5}
-    x2Data := []float64{2, 3, 4, 5, 6}
-    yData := []float64{5, 7, 9, 11, 13}
-
-    // Független változók mátrixának létrehozása
-    xMatrix := createInputMatrix(x1Data, x2Data)
-
-    // Függő változót tartalmazó vektor létrehozása
-    yVector := mat.NewVecDense(len(yData), yData)
-
-    // Regressziós együtthatók becslése
-    var regressionCoefficients mat.VecDense
-    if err := linearRegression(&regressionCoefficients, xMatrix, yVector); err != nil {
-        log.Fatal(err)
-    }
-
-    // Eredmény kiíratása
-    printRegressionResults(regressionCoefficients)
-}
-
-// createInputMatrix létrehozza a bemeneti mátrixot a független változókkal.
-func createInputMatrix(x1Data, x2Data []float64) *mat.Dense {
-    data := make([]float64, len(x1Data)*2)
-    for i := range x1Data {
-        data[i] = x1Data[i]
-        data[i+len(x1Data)] = x2Data[i]
-    }
-    return mat.NewDense(len(x1Data), 2, data)
-}
-
-// linearRegression kiszámolja a többszörös regressziót a mátrixok és vektorok alapján.
-func linearRegression(coefficients *mat.VecDense, xMatrix *mat.Dense, yVector *mat.VecDense) error {
-    var xT mat.Dense
-    xT.Clone(xMatrix.T())
-    var xTx mat.Dense
-    xTx.Mul(xT, xMatrix)
-
-    var xTy mat.VecDense
-    xTy.MulVec(xT, yVector)
-
-    err := coefficients.SolveVec(&xTx, &xTy)
-    return err
-}
-
-// printRegressionResults kiírja a regressziós együtthatókat.
-func printRegressionResults(coefficients mat.VecDense) {
-    fmt.Println("Regressziós együtthatók:")
-    for i := 0; i < coefficients.Len(); i++ {
-        fmt.Printf("b%d: %.4f\n", i+1, coefficients.AtVec(i))
-    }
-}
-                    </code>
-                </pre>
+            <div :class="{ 'active': activeTab === 1 }" x-show.transition.in.opacity.duration.600="activeTab === 1">
+                <div class="w-full h-[400px] p-10">
+                    <img class="w-full bg-cover" id="linearRegressionPNG" src="/static/images/polyreg.png" alt="poisson">
+                </div>
+            </div> 
         </div>
     </div>
 </div>
