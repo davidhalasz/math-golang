@@ -3,70 +3,65 @@ package main
 import (
 	"flag"
 	"fmt"
-	"html/template"
 	"log"
 	"net/http"
 	"os"
-	"time"
+
+	"github.com/davidhalasz/gomath/cmd/web/internal/config"
+	"github.com/davidhalasz/gomath/cmd/web/internal/handlers"
+	"github.com/davidhalasz/gomath/cmd/web/internal/helpers"
+	"github.com/davidhalasz/gomath/cmd/web/internal/render"
 )
 
-const version = "1.0.0"
-const cssVersion = "1"
+const portnNumber = ":8080"
 
-type config struct {
-	port int
-	env  string
-	api  string
-}
-
-type application struct {
-	config        config
-	infoLog       *log.Logger
-	errorLog      *log.Logger
-	templateCache map[string]*template.Template
-	version       string
-}
-
-func (app *application) serve() error {
-	srv := &http.Server{
-		Addr:              fmt.Sprintf(":%d", app.config.port),
-		Handler:           app.routes(),
-		IdleTimeout:       30 * time.Second,
-		ReadTimeout:       10 * time.Second,
-		ReadHeaderTimeout: 5 * time.Second,
-		WriteTimeout:      5 * time.Second,
-	}
-
-	app.infoLog.Println(fmt.Sprintf("Starting HTTP server in %s mode on port %d", app.config.env, app.config.port))
-
-	return srv.ListenAndServe()
-}
+var app config.AppConfig
+var infoLog *log.Logger
+var errorLog *log.Logger
 
 func main() {
-	var cfg config
+	err := run()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	flag.IntVar(&cfg.port, "port", 4000, "Server port to listen on ")
-	flag.StringVar(&cfg.env, "env", "development", "Application envrionment {development|production}")
-	flag.StringVar(&cfg.api, "api", "http://localhost:4001", "URL to api")
+	fmt.Println(fmt.Sprintf("Starting application on port %s", portnNumber))
+
+	srv := &http.Server{
+		Addr:    portnNumber,
+		Handler: routes(&app),
+	}
+
+	err = srv.ListenAndServe()
+	log.Fatal(err)
+}
+
+func run() error {
+	inProduction := flag.Bool("production", true, "Application is in production")
+	useCache := flag.Bool("cache", true, "Use template cache")
 
 	flag.Parse()
 
-	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
-	errorLog := log.New(os.Stdout, "ERRPR\t", log.Ldate|log.Lshortfile)
+	app.InProduction = *inProduction
+	app.UseCache = *useCache
 
-	tc := make(map[string]*template.Template)
+	infoLog = log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+	app.InfoLog = infoLog
 
-	app := &application{
-		config:        cfg,
-		infoLog:       infoLog,
-		errorLog:      errorLog,
-		templateCache: tc,
-		version:       version,
-	}
+	errorLog = log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+	app.ErrorLog = errorLog
 
-	err := app.serve()
+	tc, err := render.CreateTemplateCache()
 	if err != nil {
-		app.errorLog.Println(err)
-		log.Fatal(err)
+		log.Fatal("cannot create  template cache")
+		return err
 	}
+
+	app.TemplateCache = tc
+
+	handlers.NewHandlers(&app)
+	render.NewRenderer(&app)
+	helpers.NewHelpers(&app)
+
+	return nil
 }
