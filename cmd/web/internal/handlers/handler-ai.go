@@ -96,3 +96,59 @@ func CallBFS() {
 	// Visited: [ 1 2 3 4 5 6 ] Queue: [ 7 ]
 	// Visited: [ 1 2 3 4 5 6 7 ] Queue: [ ]
 }
+
+// Deep-First Search
+func DFS(root *Node) []*Node {
+	visited := []*Node{}
+
+	if root == nil {
+		return visited
+	}
+
+	return recurse(root, visited)
+}
+
+func recurse(root *Node, visited []*Node) []*Node {
+	visited = append(visited, root)
+	fmt.Printf("visited: [")
+	for i, v := range visited {
+		fmt.Printf(" %d", v.Val)
+		if i < len(visited)-1 {
+			fmt.Print(",")
+		}
+	}
+	fmt.Print(" ]\n")
+
+	if root.Left != nil {
+		visited = recurse(root.Left, visited)
+	}
+
+	if root.Right != nil {
+		visited = recurse(root.Right, visited)
+	}
+
+	return visited
+}
+
+func CallDFS(w http.ResponseWriter, r *http.Request) {
+	root := &Node{Val: 1}
+	root.Left = &Node{Val: 2}
+	root.Right = &Node{Val: 3}
+	root.Left.Left = &Node{Val: 4}
+	root.Left.Right = &Node{Val: 5}
+	root.Right.Left = &Node{Val: 6}
+	root.Right.Right = &Node{Val: 7}
+
+	fmt.Println("DFS traversal of the binary tree:")
+	DFS(root)
+
+	// The result
+	// DFS traversal of the binary tree:
+	// visited: [ 1 ]
+	// visited: [ 1, 2 ]
+	// visited: [ 1, 2, 4 ]
+	// visited: [ 1, 2, 4, 5 ]
+	// visited: [ 1, 2, 4, 5, 3 ]
+	// visited: [ 1, 2, 4, 5, 3, 6 ]
+	// visited: [ 1, 2, 4, 5, 3, 6, 7 ]
+}

@@ -1,0 +1,306 @@
+{{define "bfs"}}
+    <h3 class="font-bold text-lg mt-8">Szélességi keresés</h3>
+<div class="flex">
+    <div class="w-1/2">
+        <p>
+            A szélességi keresés (breadth-first search) egy egyszerű keresési stratégia, ahol először a
+            gyökércsomópontot
+            fejtjük ki, majd a következő lépésben az összes a gyökércsomópontból generált csomópontot, majd azok
+            követőit stb. Általánosságban a keresési stratégia minden adott mélységű csomópontot hamarabb fejt ki,
+            mielőtt
+            bármelyik, egy szinttel lejjebbi csomópontot kifejtené.
+        </p>
+        <p>
+            Tulajdonságai
+        </p>
+        <ul>
+            <li>A generált csomópontok össz-száma: b + b2 + b3 + ... + bd + (bd+1– b) = O(bd+1)</li>
+            <li>Minden legenerált csomópontot a memóriában el kell tárolni, mert vagy a perem eleme, vagy egy
+                perembeli
+                csomópont őse. A tárigény így az időigénnyel azonos (meg egy további csomópont a gyökér számára)
+            </li>
+        </ul>
+    </div>
+    <div class="w-1/2" class="tab-wrapper" x-data="{ activeTab: 1 }">
+        <div class="flex gap-2">
+            <div @click="activeTab = 0"
+                class="tab-control w-[120px] px-4 py-2 text-center rounded-md border border-slate-800 cursor-pointer"
+                :class="{ 'bg-slate-800 text-slate-100': activeTab === 0 }">GO</div>
+            <div @click="refreshNodes(); activeTab = 1"
+                class="tab-control w-[120px] px-4 py-2 text-center rounded-md border border-slate-800 cursor-pointer"
+                :class="{ 'bg-slate-800 text-slate-100': activeTab === 1 }">Canvas</div>
+        </div>
+        <div :class="{ 'active': activeTab === 0 }" x-show.transition.in.opacity.duration.600="activeTab === 0">
+            <pre>
+                    <code class="language-javascript">
+type Node struct {
+    Val   int
+    Left  *Node
+    Right *Node
+    Next  *Node
+}
+
+type NodeWithLevel struct {
+    node  *Node
+    level int
+}
+
+func BFS(root *Node) *Node {
+    if root == nil {
+        return root
+    }
+
+    queue := []NodeWithLevel{
+        {
+            node:  root,
+            level: 0,
+        },
+    }
+
+    visited := []*Node{}
+
+    for len(queue) > 0 {
+        vertex := queue[0]
+        node, level := vertex.node, vertex.level
+        visited = append(visited, node)
+        queue = queue[1:]
+
+        if node.Left != nil {
+            leftNode := NodeWithLevel{
+                node:  node.Left,
+                level: level + 1,
+            }
+            queue = append(queue, leftNode)
+
+            rightNode := NodeWithLevel{
+                node:  node.Right,
+                level: level + 1,
+            }
+            queue = append(queue, rightNode)
+        }
+        fmt.Printf("Visited: [ ")
+        for _, node := range visited {
+            fmt.Printf("%d ", node.Val)
+        }
+        fmt.Printf("] Queue: [ ")
+        for _, vertex := range queue {
+            fmt.Printf("%d ", vertex.node.Val)
+        }
+        fmt.Printf("]\n")
+    }
+
+    return root
+}
+
+func main() {
+    root := &Node{Val: 1}
+    root.Left = &Node{Val: 2}
+    root.Right = &Node{Val: 3}
+    root.Left.Left = &Node{Val: 4}
+    root.Left.Right = &Node{Val: 5}
+    root.Right.Left = &Node{Val: 6}
+    root.Right.Right = &Node{Val: 7}
+
+    fmt.Println("BFS traversal of the binary tree with level tracking:")
+    BFS(root)
+
+    // The result
+    // BFS traversal of the binary tree with level tracking:
+    // Visited: [ 1 ] Queue: [ 2 3 ]
+    // Visited: [ 1 2 ] Queue: [ 3 4 5 ]
+    // Visited: [ 1 2 3 ] Queue: [ 4 5 6 7 ]
+    // Visited: [ 1 2 3 4 ] Queue: [ 5 6 7 ]
+    // Visited: [ 1 2 3 4 5 ] Queue: [ 6 7 ]
+    // Visited: [ 1 2 3 4 5 6 ] Queue: [ 7 ]
+    // Visited: [ 1 2 3 4 5 6 7 ] Queue: [ ]
+}
+                    </code>
+                </pre>
+        </div>
+        <div :class="{ 'active': activeTab === 1 }" x-show.transition.in.opacity.duration.600="activeTab === 1">
+            <div class="w-full flex justify-center mt-8">
+                <button id="bfsBtn" onclick="refreshNodes()"
+                    class="flex gap-1 justify-center items-center rounded-full px-4 py-2 bg-slate-600 hover:bg-sky-800 text-white disabled:bg-slate-300 disabled:cursor-not-allowed">
+                    <span>Start</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
+                    </svg>
+
+                </button>
+            </div>
+            <div class="w-full flex justify-center mt-8">
+                <canvas id="bfs" width="500" height="500"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{{end}}
+
+
+{{define "bfsjs"}}
+<script>
+    const bfsBtn = document.getElementById("bfsBtn");
+    const canvasBFS = document.getElementById("bfs");
+    const ctx1 = canvasBFS.getContext("2d");
+    const ctx21 = canvasBFS.getContext("2d");
+    const ctx22 = canvasBFS.getContext("2d");
+    const ctx31 = canvasBFS.getContext("2d");
+    const ctx32 = canvasBFS.getContext("2d");
+    const ctx33 = canvasBFS.getContext("2d");
+    const ctx34 = canvasBFS.getContext("2d");
+
+    const line1 = canvasBFS.getContext("2d");
+    const line2 = canvasBFS.getContext("2d");
+    const line3 = canvasBFS.getContext("2d");
+    const line4 = canvasBFS.getContext("2d");
+    const line5 = canvasBFS.getContext("2d");
+    const line6 = canvasBFS.getContext("2d");
+
+    let animationInProgress = false;
+
+    const baseLines = [
+        [line1, 230, 25, 160, 85, "#cbd5e1"],
+        [line2, 270, 25, 340, 85, "#cbd5e1"],
+        [line3, 140, 120, 90, 180, "#cbd5e1"],
+        [line4, 160, 120, 210, 180, "#cbd5e1"],
+        [line5, 340, 120, 290, 180, "#cbd5e1"],
+        [line6, 360, 120, 410, 180, "#cbd5e1"],
+    ];
+
+    const redCircles = [
+        [ctx1, 250, 20, 20, "#991b1b", "1"],
+        [ctx21, 150, 100, 20, "#991b1b", "2"],
+        [ctx22, 350, 100, 20, "#991b1b", "3"],
+        [ctx31, 90, 200, 20, "#991b1b", "4"],
+        [ctx32, 210, 200, 20, "#991b1b", "5"],
+        [ctx33, 290, 200, 20, "#991b1b", "6"],
+        [ctx34, 410, 200, 20, "#991b1b", "7"],
+    ];
+
+    const darkCircles = [
+        [ctx1, 250, 20, 20, "#1e293b", "1"],
+        [ctx21, 150, 100, 20, "#1e293b", "2"],
+        [ctx22, 350, 100, 20, "#1e293b", "3"],
+        [ctx31, 90, 200, 20, "#1e293b", "4"],
+        [ctx32, 210, 200, 20, "#1e293b", "5"],
+        [ctx33, 290, 200, 20, "#1e293b", "6"],
+        [ctx34, 410, 200, 20, "#1e293b", "7"],
+    ];
+
+    for (let i = 0; i < baseLines.length; i++) {
+        drawLine(baseLines[i][0], baseLines[i][1], baseLines[i][2], baseLines[i][3], baseLines[i][4], baseLines[i][5]);
+    }
+
+    drawCircle(ctx1, 250, 20, 20, "#1e293b", "1");
+    drawCircle(ctx21, 150, 100, 20, "#cbd5e1", "2");
+    drawCircle(ctx22, 350, 100, 20, "#cbd5e1", "3");
+    drawCircle(ctx31, 90, 200, 20, "#cbd5e1", "4");
+    drawCircle(ctx32, 210, 200, 20, "#cbd5e1", "5");
+    drawCircle(ctx33, 290, 200, 20, "#cbd5e1", "6");
+    drawCircle(ctx34, 410, 200, 20, "#cbd5e1", "7");
+
+    const nodes1 = [ctx1, ctx21, ctx22, ctx31, ctx32, ctx33, ctx34];
+    const lines = [line1, line2, line3, line4, line5, line6];
+
+    function processNode(index) {
+        if (index < nodes1.length) {
+            if (index > 0) {
+                drawCircle(nodes1[index - 1], 250, 20, 20, "#1e293b", "1");
+                drawCircle(darkCircles[index - 1][0], darkCircles[index - 1][1], darkCircles[index - 1][2], darkCircles[index - 1][3], darkCircles[index - 1][4], darkCircles[index - 1][5]);
+            }
+
+            if (index == 0) {
+                drawCircle(ctx21, 150, 100, 20, "#1e293b", "2");
+                drawCircle(ctx22, 350, 100, 20, "#1e293b", "3");
+
+                drawLine(baseLines[0][0], baseLines[0][1], baseLines[0][2], baseLines[0][3], baseLines[0][4], "#1e293b");
+                drawLine(baseLines[1][0], baseLines[1][1], baseLines[1][2], baseLines[1][3], baseLines[1][4], "#1e293b");
+            }
+
+            if (index == 1) {
+                drawCircle(ctx31, 90, 200, 20, "#1e293b", "4");
+                drawCircle(ctx32, 210, 200, 20, "#1e293b", "5");
+
+                drawLine(baseLines[2][0], baseLines[2][1], baseLines[2][2], baseLines[2][3], baseLines[2][4], "#1e293b");
+                drawLine(baseLines[3][0], baseLines[3][1], baseLines[3][2], baseLines[3][3], baseLines[3][4], "#1e293b");
+            }
+
+            if (index == 2) {
+                drawCircle(ctx33, 290, 200, 20, "#1e293b", "6");
+                drawCircle(ctx34, 410, 200, 20, "#1e293b", "7");
+
+                drawLine(baseLines[4][0], baseLines[4][1], baseLines[4][2], baseLines[4][3], baseLines[4][4], "#1e293b");
+                drawLine(baseLines[5][0], baseLines[5][1], baseLines[5][2], baseLines[5][3], baseLines[5][4], "#1e293b");
+            }
+            //current
+            drawCircle(redCircles[index][0], redCircles[index][1], redCircles[index][2], redCircles[index][3], redCircles[index][4], redCircles[index][5]);
+
+            //paint back the previous
+        }
+    }
+
+    function clearNodesTimeouts() {
+        // Clear previous timeouts if any
+        for (let i = 0; i < nodes1.length; i++) {
+            clearTimeout(nodes1[i].timeoutId);
+        }
+    }
+
+    function resetCanvas() {
+        drawCircle(ctx1, 250, 20, 20, "#1e293b", "1");
+        drawCircle(ctx21, 150, 100, 20, "#cbd5e1", "2");
+        drawCircle(ctx22, 350, 100, 20, "#cbd5e1", "3");
+        drawCircle(ctx31, 90, 200, 20, "#cbd5e1", "4");
+        drawCircle(ctx32, 210, 200, 20, "#cbd5e1", "5");
+        drawCircle(ctx33, 290, 200, 20, "#cbd5e1", "6");
+        drawCircle(ctx34, 410, 200, 20, "#cbd5e1", "7");
+
+        // Redraw base lines
+        for (let i = 0; i < baseLines.length; i++) {
+            drawLine(baseLines[i][0], baseLines[i][1], baseLines[i][2], baseLines[i][3], baseLines[i][4], baseLines[i][5]);
+        }
+    }
+
+    function disableButton() {
+        if (bfsBtn) {
+            bfsBtn.disabled = true;
+        }
+    }
+
+    function enableButton() {
+        if (bfsBtn) {
+            bfsBtn.disabled = false;
+        }
+    }
+
+    function refreshNodes() {
+        // Check if animation is in progress
+        if (animationInProgress) {
+            return;
+        }
+
+        disableButton();
+
+        animationInProgress = true;
+        clearNodesTimeouts();
+        resetCanvas();
+
+        // Set a timeout for the total animation duration
+        setTimeout(() => {
+            animationInProgress = false;
+            enableButton();
+        }, 3000 * nodes1.length);
+
+        for (let i = 0; i < nodes1.length; i++) {
+            (function (index) {
+                nodes1[index].timeoutId = setTimeout(() => {
+                    processNode(index);
+                }, 3000 * index);
+            })(i);
+        }
+    }
+    </script>
+
+{{end}}

@@ -1,0 +1,292 @@
+{{define "dfs"}}
+<h3 class="font-bold text-lg mt-8">Mélységi keresés</h3>
+    <div class="flex gap-4">
+        <div class="w-1/2">
+            <p>
+                A mélységi keresés (depth-first search) mindig a keresési fa aktuális peremében a legmélyebben fekvő
+                csomópontot fejti ki. <br>
+                A keresés azonnal a fa legmélyebb szintjére
+                jut el, ahol a csomópontoknak már nincsenek követőik. Kifejtésüket követően kikerülnek a peremből és a
+                keresés „visszalép” ahhoz a következő legmélyebben fekvő csomóponthoz, amelynek vannak még ki nem
+                fejtett
+                követői.
+            </p>
+            <p>
+                A mélységi keresés nagyon szerény tárigényű. Csak egyetlen, a gyökércsomóponttól egy levélcsomópontig
+                vezető utat kell tárolnia, kiegészítve az út minden egyes csomópontja melletti kifejtetlen
+                csomópontokkal. Egy
+                kifejtett csomópont el is hagyható a memóriából, feltéve, hogy az összes leszármazottja meg lett
+                vizsgálva.
+            </p>
+            <p>
+                Egy
+                b elágazási tényezőjű és m maximális mélységű állapottér esetén a mélységi keresés tárigénye bm + 1.
+            </p>
+        </div>
+        <div class="w-1/2" class="tab-wrapper" x-data="{ activeTab: 0 }">
+            <div class="flex gap-2">
+                <div @click="activeTab = 0"
+                    class="tab-control w-[120px] px-4 py-2 text-center rounded-md border border-slate-800 cursor-pointer"
+                    :class="{ 'bg-slate-800 text-slate-100': activeTab === 0 }">GO</div>
+                <div @click="activeTab = 1"
+                    class="tab-control w-[120px] px-4 py-2 text-center rounded-md border border-slate-800 cursor-pointer"
+                    :class="{ 'bg-slate-800 text-slate-100': activeTab === 1 }">Canvas</div>
+            </div>
+            <div :class="{ 'active': activeTab === 0 }" x-show.transition.in.opacity.duration.600="activeTab === 0">
+                <pre>
+                    <code class="language-javascript">
+
+type Node struct {
+    Val   int
+    Left  *Node
+    Right *Node
+    Next  *Node
+}
+
+// Deep-First Search
+func DFS(root *Node) []*Node {
+    visited := []*Node{}
+
+    if root == nil {
+        return visited
+    }
+
+    return recurse(root, visited)
+}
+
+func recurse(root *Node, visited []*Node) []*Node {
+    visited = append(visited, root)
+    fmt.Printf("visited: [")
+    for i, v := range visited {
+        fmt.Printf(" %d", v.Val)
+        if i < len(visited)-1 {
+            fmt.Print(",")
+        }
+    }
+    fmt.Print(" ]\n")
+
+    if root.Left != nil {
+        visited = recurse(root.Left, visited)
+    }
+
+    if root.Right != nil {
+        visited = recurse(root.Right, visited)
+    }
+
+    return visited
+}
+
+func CallDFS(w http.ResponseWriter, r *http.Request) {
+    root := &Node{Val: 1}
+    root.Left = &Node{Val: 2}
+    root.Right = &Node{Val: 3}
+    root.Left.Left = &Node{Val: 4}
+    root.Left.Right = &Node{Val: 5}
+    root.Right.Left = &Node{Val: 6}
+    root.Right.Right = &Node{Val: 7}
+
+    fmt.Println("DFS traversal of the binary tree:")
+    DFS(root)
+
+    // The result
+    // DFS traversal of the binary tree:
+    // visited: [ 1 ]
+    // visited: [ 1, 2 ]
+    // visited: [ 1, 2, 4 ]
+    // visited: [ 1, 2, 4, 5 ]
+    // visited: [ 1, 2, 4, 5, 3 ]
+    // visited: [ 1, 2, 4, 5, 3, 6 ]
+    // visited: [ 1, 2, 4, 5, 3, 6, 7 ]
+}
+                    </code>
+                </pre>
+            </div>
+            <div :class="{ 'active': activeTab === 1 }" x-show.transition.in.opacity.duration.600="activeTab === 1">
+                <div class="w-full flex justify-center mt-8">
+                    <button id="dfsBtn" onclick="refreshNodesDFS()"
+                        class="flex gap-1 justify-center items-center rounded-full px-4 py-2 bg-slate-600 hover:bg-sky-800 text-white disabled:bg-slate-300 disabled:cursor-not-allowed">
+                        <span>Start</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
+                        </svg>
+
+                    </button>
+                </div>
+                <div class="w-full flex justify-center mt-8">
+                    <canvas id="dfs" width="500" height="500"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+{{end}}
+
+
+{{define "dfsjs"}}
+
+<script>
+    const dfsBtn = document.getElementById("dfsBtn");
+    const canvasDFS = document.getElementById("dfs");
+    const dfs1 = canvasDFS.getContext("2d");
+    const dfs21 = canvasDFS.getContext("2d");
+    const dfs22 = canvasDFS.getContext("2d");
+    const dfs31 = canvasDFS.getContext("2d");
+    const dfs32 = canvasDFS.getContext("2d");
+    const dfs33 = canvasDFS.getContext("2d");
+    const dfs34 = canvasDFS.getContext("2d");
+
+    const dfsLine1 = canvasDFS.getContext("2d");
+    const dfsLine2 = canvasDFS.getContext("2d");
+    const dfsLine3 = canvasDFS.getContext("2d");
+    const dfsLine4 = canvasDFS.getContext("2d");
+    const dfsLine5 = canvasDFS.getContext("2d");
+    const dfsLine6 = canvasDFS.getContext("2d");
+
+    let animationInProgressDFS = false;
+
+    drawCircle(dfs1, 250, 20, 20, "#1e293b", "1");
+    drawCircle(dfs21, 150, 100, 20, "#cbd5e1", "2");
+    drawCircle(dfs22, 350, 100, 20, "#cbd5e1", "3");
+    drawCircle(dfs31, 90, 200, 20, "#cbd5e1", "4");
+    drawCircle(dfs32, 210, 200, 20, "#cbd5e1", "5");
+    drawCircle(dfs33, 290, 200, 20, "#cbd5e1", "6");
+    drawCircle(dfs34, 410, 200, 20, "#cbd5e1", "7");
+
+    const redCirclesDFS = [
+        [dfs1, 250, 20, 20, "#991b1b", "1"],
+        [dfs21, 150, 100, 20, "#991b1b", "2"],
+        [dfs31, 90, 200, 20, "#991b1b", "4"],
+        [dfs32, 210, 200, 20, "#991b1b", "5"],
+        [dfs22, 350, 100, 20, "#991b1b", "3"],
+        [dfs33, 290, 200, 20, "#991b1b", "6"],
+        [dfs34, 410, 200, 20, "#991b1b", "7"],
+    ];
+
+    const baseLinesDFS = [
+        [dfsLine1, 230, 25, 160, 85, "#cbd5e1"],
+        [dfsLine2, 270, 25, 340, 85, "#cbd5e1"],
+        [dfsLine3, 140, 120, 90, 180, "#cbd5e1"],
+        [dfsLine4, 160, 120, 210, 180, "#cbd5e1"],
+        [dfsLine5, 340, 120, 290, 180, "#cbd5e1"],
+        [dfsLine6, 360, 120, 410, 180, "#cbd5e1"],
+    ];
+
+    const darkCirclesDFS = [
+        [dfs1, 250, 20, 20, "#1e293b", "1"],
+        [dfs21, 150, 100, 20, "#1e293b", "2"],
+        [dfs22, 350, 100, 20, "#1e293b", "3"],
+        [dfs31, 90, 200, 20, "#1e293b", "4"],
+        [dfs32, 210, 200, 20, "#1e293b", "5"],
+        [dfs33, 290, 200, 20, "#1e293b", "6"],
+        [dfs34, 410, 200, 20, "#1e293b", "7"],
+    ];
+
+    for (let i = 0; i < baseLinesDFS.length; i++) {
+        drawLine(baseLinesDFS[i][0], baseLinesDFS[i][1], baseLinesDFS[i][2], baseLinesDFS[i][3], baseLinesDFS[i][4], baseLinesDFS[i][5]);
+    }
+
+
+    const dfsNodes = [dfs1, dfs21, dfs22, dfs31, dfs32, dfs33, dfs34];
+    const dfsLines = [dfsLine1, dfsLine2, dfsLine3, dfsLine4, dfsLine5, dfsLine6];
+
+    function processNodeDFS(index) {
+        if (index < dfsNodes.length) {
+            if (index > 0) {
+                drawCircle(dfsNodes[index - 1], 250, 20, 20, "#1e293b", "1");
+                drawCircle(darkCirclesDFS[index - 1][0], darkCirclesDFS[index - 1][1], darkCirclesDFS[index - 1][2], darkCirclesDFS[index - 1][3], darkCirclesDFS[index - 1][4], darkCirclesDFS[index - 1][5]);
+            }
+
+            if (index == 0) {
+                drawCircle(dfs21, 150, 100, 20, "#1e293b", "2");
+                drawCircle(dfs22, 350, 100, 20, "#1e293b", "3");
+
+                drawLine(baseLinesDFS[0][0], baseLinesDFS[0][1], baseLinesDFS[0][2], baseLinesDFS[0][3], baseLinesDFS[0][4], "#1e293b");
+                drawLine(baseLinesDFS[1][0], baseLinesDFS[1][1], baseLinesDFS[1][2], baseLinesDFS[1][3], baseLinesDFS[1][4], "#1e293b");
+            }
+
+            if (index == 1) {
+                drawCircle(dfs31, 90, 200, 20, "#1e293b", "4");
+                drawCircle(dfs32, 210, 200, 20, "#1e293b", "5");
+
+                drawLine(baseLinesDFS[2][0], baseLinesDFS[2][1], baseLinesDFS[2][2], baseLinesDFS[2][3], baseLinesDFS[2][4], "#1e293b");
+                drawLine(baseLinesDFS[3][0], baseLinesDFS[3][1], baseLinesDFS[3][2], baseLinesDFS[3][3], baseLinesDFS[3][4], "#1e293b");
+            }
+
+            if (index == 4) {
+                drawCircle(dfs33, 290, 200, 20, "#1e293b", "6");
+                drawCircle(dfs34, 410, 200, 20, "#1e293b", "7");
+
+                drawLine(baseLinesDFS[4][0], baseLinesDFS[4][1], baseLinesDFS[4][2], baseLinesDFS[4][3], baseLinesDFS[4][4], "#1e293b");
+                drawLine(baseLinesDFS[5][0], baseLinesDFS[5][1], baseLinesDFS[5][2], baseLinesDFS[5][3], baseLinesDFS[5][4], "#1e293b");
+            }
+            //current
+            drawCircle(redCirclesDFS[index][0], redCirclesDFS[index][1], redCirclesDFS[index][2], redCirclesDFS[index][3], redCirclesDFS[index][4], redCirclesDFS[index][5]);
+
+            //paint back the previous
+        }
+    }
+
+    function clearNodesTimeoutsDFS() {
+        // Clear previous timeouts if any
+        for (let i = 0; i < dfsNodes.length; i++) {
+            clearTimeout(dfsNodes[i].timeoutId);
+        }
+    }
+
+    function resetCanvasDFS() {
+        drawCircle(dfs1, 250, 20, 20, "#1e293b", "1");
+        drawCircle(dfs21, 150, 100, 20, "#cbd5e1", "2");
+        drawCircle(dfs22, 350, 100, 20, "#cbd5e1", "3");
+        drawCircle(dfs31, 90, 200, 20, "#cbd5e1", "4");
+        drawCircle(dfs32, 210, 200, 20, "#cbd5e1", "5");
+        drawCircle(dfs33, 290, 200, 20, "#cbd5e1", "6");
+        drawCircle(dfs34, 410, 200, 20, "#cbd5e1", "7");
+
+        // Redraw base lines
+        for (let i = 0; i < baseLines.length; i++) {
+            drawLine(baseLines[i][0], baseLines[i][1], baseLines[i][2], baseLines[i][3], baseLines[i][4], baseLines[i][5]);
+        }
+    }
+
+    function disableButtonDFS() {
+        if (dfsBtn) {
+            dfsBtn.disabled = true;
+        }
+    }
+
+    function enableButtonDFS() {
+        if (dfsBtn) {
+            dfsBtn.disabled = false;
+        }
+    }
+
+    function refreshNodesDFS() {
+        // Check if animation is in progress
+        if (animationInProgressDFS) {
+            return;
+        }
+
+        disableButtonDFS();
+
+        animationInProgressDFS = true;
+        clearNodesTimeoutsDFS();
+        resetCanvasDFS();
+
+        // Set a timeout for the total animation duration
+        setTimeout(() => {
+            animationInProgressDFS = false;
+            enableButtonDFS();
+        }, 3000 * dfsNodes.length);
+
+        for (let i = 0; i < dfsNodes.length; i++) {
+            (function (index) {
+                dfsNodes[index].timeoutId = setTimeout(() => {
+                    processNodeDFS(index);
+                }, 3000 * index);
+            })(i);
+        }
+    }
+
+</script>
+{{end}}

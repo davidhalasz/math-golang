@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"net/http"
 	"path/filepath"
+	"strings"
 
 	"github.com/davidhalasz/gomath/cmd/web/internal/config"
 	"github.com/davidhalasz/gomath/cmd/web/internal/models"
@@ -59,6 +60,9 @@ func CreateTemplateCache() (map[string]*template.Template, error) {
 	}
 
 	for _, page := range pages {
+		// get the base name of the file without extension
+		pageName := strings.TrimSuffix(filepath.Base(page), ".page.gohtml")
+
 		name := filepath.Base(page)
 		ts, err := template.New(name).ParseFiles(page)
 		if err != nil {
@@ -72,6 +76,22 @@ func CreateTemplateCache() (map[string]*template.Template, error) {
 
 		if len(matches) > 0 {
 			ts, err = ts.ParseGlob(fmt.Sprintf("%s/*.layout.gohtml", pathToTemplates))
+			if err != nil {
+				return myCache, err
+			}
+		}
+
+		// find partials for this page
+		partialDir := filepath.Join(pathToTemplates, "partials", pageName)
+		fmt.Println(partialDir)
+		partials, err := filepath.Glob(fmt.Sprintf("%s/*.partial.gohtml", partialDir))
+		if err != nil {
+			return myCache, err
+		}
+
+		// parse partials and add to template set
+		if len(partials) > 0 {
+			_, err = ts.ParseGlob(fmt.Sprintf("%s/*.partial.gohtml", partialDir))
 			if err != nil {
 				return myCache, err
 			}

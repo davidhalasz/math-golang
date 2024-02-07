@@ -6,6 +6,7 @@ Home Page
 
 {{define "content"}}
 <div class="container  mx-auto p-10">
+
     <h2 class="font-bold text-xl">Nem informált keresés</h2>
     <p>
         A nem informált (vaknak is nevezett) keresés azt jelenti, hogy ezen stratégiáknak semmilyen
@@ -13,480 +14,60 @@ Home Page
         mást nem tehetnek, mint a következő állapotok generálása és a célállapot megkülönböztetése a nem
         célállapottól.
     </p>
-    <p>Ide tartozó keresési stratégiák:</p>
-    <ul>
+    <ul class="list-disc mt-2 pl-4">
+        <li>Teljesség (completeness): az algoritmus garantáltan megtalál egy megoldást, amennyiben létezik megoldás?
+        </li>
+        <li>Optimalitás (optimality): a stratégia megtalálja az optimális megoldást?</li>
+        <li>Időigény (time complexity): mennyi ideig tart egy megoldás megtalálása?</li>
+        <li>Tárigény (space complexity): a keresés elvégzéséhez mennyi memóriára van szükség?</li>
+    </ul>
+    <p class="mt-2">Az MI-ben,
+        ahol a gráfot implicit formában a kezdeti állapottal és az állapotátmenet-függvénnyel reprezentáljuk, és ahol a
+        gráf sokszor végtelen, a komplexitást három tényezővel fejezzük ki. Ezek: <span class="font-bold">b – az
+            elágazási tényező (branching
+            factor)</span>, vagyis a követők maximális száma minden csomópontban, <span class="font-bold">d – a
+            legsekélyebb célállapot mélysége</span> és <span class="font-bold">m
+            – az állapottérben található utak maximális hossza.</span></p> <br>
+    Az időt gyakran a keresés közben generált csomópontok számával, a tárat pedig a memóriában maximálisan
+    tárolt csomópontok számával mérik.</p>
+    <p class="mt-2">Ide tartozó keresési stratégiák:</p>
+    <ul class="list-disc pl-4">
         <li>Szélességi keresés</li>
+        <li>Mélységi keresés</li>
     </ul>
 
-    <h3 class="font-bold text-lg">Szélességi keresés</h3>
-    <div class="flex">
-        <div class="w-1/2">
-            <p>
-                A szélességi keresés (breadth-first search) egy egyszerű keresési stratégia, ahol először a
-                gyökércsomópontot
-                fejtjük ki, majd a következő lépésben az összes a gyökércsomópontból generált csomópontot, majd azok
-                követőit stb. Általánosságban a keresési stratégia minden adott mélységű csomópontot hamarabb fejt ki,
-                mielőtt
-                bármelyik, egy szinttel lejjebbi csomópontot kifejtené.
-            </p>
-        </div>
-        <div class="w-1/2" class="tab-wrapper" x-data="{ activeTab: 1 }">
-            <div class="flex gap-2">
-                <div @click="activeTab = 0"
-                    class="tab-control w-[120px] px-4 py-2 text-center rounded-md border border-slate-800 cursor-pointer"
-                    :class="{ 'bg-slate-800 text-slate-100': activeTab === 0 }">GO</div>
-                <div @click="refreshNodes(); activeTab = 1"
-                    class="tab-control w-[120px] px-4 py-2 text-center rounded-md border border-slate-800 cursor-pointer"
-                    :class="{ 'bg-slate-800 text-slate-100': activeTab === 1 }">JS</div>
-            </div>
-            <div :class="{ 'active': activeTab === 0 }" x-show.transition.in.opacity.duration.600="activeTab === 0">
-                <pre>
-                    <code class="language-javascript">
-type Node struct {
-    Val   int
-    Left  *Node
-    Right *Node
-    Next  *Node
-}
+    {{template "bfs"}}
 
-type NodeWithLevel struct {
-    node  *Node
-    level int
-}
+    {{template "dfs"}}
+    
 
-func BFS(root *Node) *Node {
-    if root == nil {
-        return root
-    }
-
-    queue := []NodeWithLevel{
-        {
-            node:  root,
-            level: 0,
-        },
-    }
-
-    visited := []*Node{}
-
-    for len(queue) > 0 {
-        vertex := queue[0]
-        node, level := vertex.node, vertex.level
-        visited = append(visited, node)
-        queue = queue[1:]
-
-        if node.Left != nil {
-            leftNode := NodeWithLevel{
-                node:  node.Left,
-                level: level + 1,
-            }
-            queue = append(queue, leftNode)
-
-            rightNode := NodeWithLevel{
-                node:  node.Right,
-                level: level + 1,
-            }
-            queue = append(queue, rightNode)
-        }
-        fmt.Printf("Visited: [ ")
-        for _, node := range visited {
-            fmt.Printf("%d ", node.Val)
-        }
-        fmt.Printf("] Queue: [ ")
-        for _, vertex := range queue {
-            fmt.Printf("%d ", vertex.node.Val)
-        }
-        fmt.Printf("]\n")
-    }
-
-    return root
-}
-
-func main() {
-    root := &Node{Val: 1}
-    root.Left = &Node{Val: 2}
-    root.Right = &Node{Val: 3}
-    root.Left.Left = &Node{Val: 4}
-    root.Left.Right = &Node{Val: 5}
-    root.Right.Left = &Node{Val: 6}
-    root.Right.Right = &Node{Val: 7}
-
-    fmt.Println("BFS traversal of the binary tree with level tracking:")
-    BFS(root)
-
-    // The result
-    // BFS traversal of the binary tree with level tracking:
-    // Visited: [ 1 ] Queue: [ 2 3 ]
-    // Visited: [ 1 2 ] Queue: [ 3 4 5 ]
-    // Visited: [ 1 2 3 ] Queue: [ 4 5 6 7 ]
-    // Visited: [ 1 2 3 4 ] Queue: [ 5 6 7 ]
-    // Visited: [ 1 2 3 4 5 ] Queue: [ 6 7 ]
-    // Visited: [ 1 2 3 4 5 6 ] Queue: [ 7 ]
-    // Visited: [ 1 2 3 4 5 6 7 ] Queue: [ ]
-}
-                    </code>
-                </pre>
-            </div>
-            <div :class="{ 'active': activeTab === 1 }" x-show.transition.in.opacity.duration.600="activeTab === 1">
-                <div class="w-[500px] mx-auto mt-12">
-                    <div class="w-full flex justify-center">
-                        <div id="node-1"
-                            class="rounded-full w-12 h-12 flex items-center justify-center bg-slate-800 text-white">
-                            1
-                        </div>
-                    </div>
-                    <div class="level-2 w-full flex pt-8">
-                        <div class="w-1/2 flex justify-center">
-                            <div id="node-21"
-                                class=" rounded-full w-12 h-12 flex items-center justify-center bg-slate-300 text-white">
-                                2
-                            </div>
-                        </div>
-                        <div class="w-1/2 flex justify-center">
-                            <div id="node-22"
-                                class="rounded-full w-12 h-12 flex items-center justify-center bg-slate-300 text-white">
-                                3
-                            </div>
-                        </div>
-                    </div>
-                    <div class="level-3 w-full flex pt-8">
-                        <div class="w-1/2 flex justify-between px-8">
-                            <div id="node-31"
-                                class="rounded-full w-12 h-12 flex items-center justify-center bg-slate-300 text-white">
-                                4
-                            </div>
-                            <div id="node-32"
-                                class="rounded-full w-12 h-12 flex items-center justify-center bg-slate-300 text-white">
-                                5
-                            </div>
-                        </div>
-
-                        <div class="w-1/2 flex justify-between px-8">
-                            <div id="node-33"
-                                class="rounded-full w-12 h-12 flex items-center justify-center bg-slate-300 text-white">
-                                6
-                            </div>
-
-                            <div id="node-34"
-                                class="rounded-full w-12 h-12 flex items-center justify-center bg-slate-300 text-white">
-                                7
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="w-full flex justify-center mt-8">
-                    <button onclick="refreshNodes1()"
-                        class="rounded-full px-4 py-2 bg-slate-600 hover:bg-sky-800 text-white">Újrakezdés</button>
-                </div>
-                <canvas id="myCanvas" width="500" height="500"></canvas>
-            </div>
-        </div>
-    </div>
 </div>
 {{end}}
 
+
 {{define "js"}}
-<script>
-    const node1 = document.getElementById('node-1');
-    const level2 = document.getElementById('level-2');
-    const node21 = document.getElementById('node-21');
-    const node22 = document.getElementById('node-22');
-    const level3 = document.getElementById('level-3');
-    const node31 = document.getElementById('node-31');
-    const node32 = document.getElementById('node-32');
-    const node33 = document.getElementById('node-33');
-    const node34 = document.getElementById('node-34');
+    <script>
+        function drawCircle(ctx, x, y, radius, color, text) {
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, 2 * Math.PI);
+            ctx.fillStyle = color;
+            ctx.fill();
 
-    const nodes = [node1, node21, node22, node31, node32, node33, node34];
-
-    function processNode(index) {
-        if (index < nodes.length) {
-            if (index > 0) {
-                nodes[index - 1].classList.remove("bg-red-800");
-                nodes[index - 1].classList.add("bg-slate-800");
-            }
-
-            if (index == 0) {
-                node21.classList.remove("bg-slate-300");
-                node21.classList.add("bg-slate-800");
-
-                node22.classList.remove("bg-slate-300");
-                node22.classList.add("bg-slate-800");
-            }
-
-            if (index == 1) {
-                node31.classList.remove("bg-slate-300");
-                node31.classList.add("bg-slate-800");
-
-                node32.classList.remove("bg-slate-300");
-                node32.classList.add("bg-slate-800");
-            }
-
-            if (index == 2) {
-                node33.classList.remove("bg-slate-300");
-                node33.classList.add("bg-slate-800");
-
-                node34.classList.remove("bg-slate-300");
-                node34.classList.add("bg-slate-800");
-            }
-            nodes[index].classList.add("bg-red-800");
-        }
-    }
-
-    function refreshNodes() {
-        // Clear previous timeouts if any
-        for (let i = 0; i < nodes.length; i++) {
-            clearTimeout(nodes[i].timeoutId);
+            ctx.font = "18px Arial";
+            ctx.fillStyle = "white";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(text, x, y);
         }
 
-        for (let i = 0; i < nodes.length; i++) {
-            nodes[i].classList.add("bg-slate-300");
-            nodes[i].classList.remove("bg-red-800");
-            nodes[i].classList.remove("bg-slate-800");
+        function drawLine(ctx, x1, y1, x2, y2, color) {
+            ctx.beginPath();
+            ctx.strokeStyle = color;
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
         }
-
-        for (let i = 0; i < nodes.length; i++) {
-            (function (index) {
-                nodes[index].timeoutId = setTimeout(() => {
-                    processNode(index);
-                }, 3000 * index);
-            })(i);
-        }
-    }
-
-</script>
-
-<script>
-    const canvas = document.getElementById("myCanvas");
-    const ctx1 = canvas.getContext("2d");
-    const ctx21 = canvas.getContext("2d");
-    const ctx22 = canvas.getContext("2d");
-    const ctx31 = canvas.getContext("2d");
-    const ctx32 = canvas.getContext("2d");
-    const ctx33 = canvas.getContext("2d");
-    const ctx34 = canvas.getContext("2d");
-
-    // ctx1.beginPath();
-    // ctx1.arc(250, 20, 20, 0, 2 * Math.PI);
-    // ctx1.fillStyle = "#1e293b";
-    // ctx1.fill();
-
-    // ctx1.font = "18px Arial";
-    // ctx1.fillStyle = "white";
-    // ctx1.textAlign = "center";
-    // ctx1.textBaseline = "middle";
-    // ctx1.fillText("1", 250, 20);
-
-    // ctx21.beginPath();
-    // ctx21.arc(150, 100, 20, 20, 0, 2 * Math.PI);
-    // ctx21.fillStyle = "#cbd5e1";
-    // ctx1.fill();
-
-    // ctx21.font = "18px Arial";
-    // ctx21.fillStyle = "white";
-    // ctx21.textAlign = "center";
-    // ctx21.textBaseline = "middle";
-    // ctx21.fillText("2", 150, 100);
-
-    // ctx22.beginPath();
-    // ctx22.arc(350, 100, 20, 20, 0, 2 * Math.PI);
-    // ctx22.fillStyle = "#cbd5e1";
-    // ctx22.fill();
-
-    // ctx22.font = "18px Arial";
-    // ctx22.fillStyle = "white";
-    // ctx22.textAlign = "center";
-    // ctx22.textBaseline = "middle";
-    // ctx22.fillText("3", 350, 100);
-
-    // ctx31.beginPath();
-    // ctx31.arc(90, 200, 20, 20, 0, 2 * Math.PI);
-    // ctx31.fillStyle = "#cbd5e1";
-    // ctx31.fill();
-
-    // ctx31.font = "18px Arial";
-    // ctx31.fillStyle = "white";
-    // ctx31.textAlign = "center";
-    // ctx31.textBaseline = "middle";
-    // ctx31.fillText("4", 90, 200);
-
-    // ctx32.beginPath();
-    // ctx32.arc(210, 200, 20, 20, 0, 2 * Math.PI);
-    // ctx32.fillStyle = "#cbd5e1";
-    // ctx32.fill();
-
-    // ctx32.font = "18px Arial";
-    // ctx32.fillStyle = "white";
-    // ctx32.textAlign = "center";
-    // ctx32.textBaseline = "middle";
-    // ctx32.fillText("5", 210, 200);
-
-    // ctx33.beginPath();
-    // ctx33.arc(290, 200, 20, 20, 0, 2 * Math.PI);
-    // ctx33.fillStyle = "#cbd5e1";
-    // ctx33.fill();
-
-    // ctx33.font = "18px Arial";
-    // ctx33.fillStyle = "white";
-    // ctx33.textAlign = "center";
-    // ctx33.textBaseline = "middle";
-    // ctx33.fillText("6", 290, 200);
-
-    // ctx34.beginPath();
-    // ctx34.arc(410, 200, 20, 20, 0, 2 * Math.PI);
-    // ctx34.fillStyle = "#cbd5e1";
-    // ctx34.fill();
-
-    // ctx34.font = "18px Arial";
-    // ctx34.fillStyle = "white";
-    // ctx34.textAlign = "center";
-    // ctx34.textBaseline = "middle";
-    // ctx34.fillText("7", 410, 200);
-
-    const line1 = canvas.getContext("2d");
-    line1.beginPath();
-    line1.strokeStyle = "#cbd5e1";
-    line1.moveTo(250 - 20, 25);
-    line1.lineTo(150 + 10, 100 - 15);
-    line1.stroke();
-
-    const line2 = canvas.getContext("2d");
-    line2.beginPath();
-    line2.strokeStyle = "#cbd5e1";
-    line2.moveTo(250 + 20, 25);
-    line2.lineTo(350 - 10, 100 - 15);
-    line2.stroke();
-
-    const line3 = canvas.getContext("2d");
-    line3.beginPath();
-    line3.strokeStyle = "#cbd5e1";
-    line3.fill();
-    line3.moveTo(140, 120);
-    line3.lineTo(90, 180);
-    line3.stroke();
-
-    const line4 = canvas.getContext("2d");
-    line4.beginPath();
-    line4.strokeStyle = "#cbd5e1";
-    line4.fill();
-    line4.moveTo(160, 120);
-    line4.lineTo(210, 180);
-    line4.stroke();
-
-    const line5 = canvas.getContext("2d");
-    line5.beginPath();
-    line5.strokeStyle = "#cbd5e1";
-    line5.fill();
-    line5.moveTo(340, 120);
-    line5.lineTo(290, 180);
-    line5.stroke();
-
-    const line6 = canvas.getContext("2d");
-    line6.beginPath();
-    line6.strokeStyle = "#cbd5e1";
-    line6.fill();
-    line6.moveTo(360, 120);
-    line6.lineTo(410, 180);
-    line6.stroke();
-
-    function drawCircle(ctx, x, y, radius, color, text) {
-        ctx.beginPath();
-        ctx.arc(x, y, radius, 0, 2 * Math.PI);
-        ctx.fillStyle = color;
-        ctx.fill();
-
-        ctx.font = "18px Arial";
-        ctx.fillStyle = "white";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(text, x, y);
-    }
-
-    function drawLine(ctx, x1, y1, x2, y2, color) {
-        ctx.beginPath();
-        ctx.strokeStyle = color;
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.stroke();
-    }
-
-    const redCircles = [
-        [ctx1, 250, 20, 20, "#991b1b", "1"],
-        [ctx21, 150, 100, 20, "#991b1b", "2"],
-        [ctx22, 350, 100, 20, "#991b1b", "3"],
-        [ctx31, 90, 200, 20, "#991b1b", "4"],
-        [ctx32, 210, 200, 20, "#991b1b", "5"],
-        [ctx33, 290, 200, 20, "#991b1b", "6"],
-        [ctx34, 410, 200, 20, "#991b1b", "7"],
-    ];
-
-    const darkCircles = [
-        [ctx1, 250, 20, 20, "#1e293b", "1"],
-        [ctx21, 150, 100, 20, "#1e293b", "2"],
-        [ctx22, 350, 100, 20, "#1e293b", "3"],
-        [ctx31, 90, 200, 20, "#1e293b", "4"],
-        [ctx32, 210, 200, 20, "#1e293b", "5"],
-        [ctx33, 290, 200, 20, "#1e293b", "6"],
-        [ctx34, 410, 200, 20, "#1e293b", "7"],
-    ];
-
-    drawCircle(ctx1, 250, 20, 20, "#1e293b", "1");
-    drawCircle(ctx21, 150, 100, 20, "#cbd5e1", "2");
-    drawCircle(ctx22, 350, 100, 20, "#cbd5e1", "3");
-    drawCircle(ctx31, 90, 200, 20, "#cbd5e1", "4");
-    drawCircle(ctx32, 210, 200, 20, "#cbd5e1", "5");
-    drawCircle(ctx33, 290, 200, 20, "#cbd5e1", "6");
-    drawCircle(ctx34, 410, 200, 20, "#cbd5e1", "7");
-
-    const nodes1 = [ctx1, ctx21, ctx22, ctx31, ctx32, ctx33, ctx34];
-    const lines = [line1, line2, line3, line4, line5, line6];
-
-    function processNode1(index) {
-        if (index < nodes1.length) {
-            if (index > 0) {
-                drawCircle(nodes1[index - 1], 250, 20, 20, "#1e293b", "1");
-            }
-
-            if (index == 0) {
-                drawCircle(ctx21, 150, 100, 20, "#1e293b", "2");
-                drawCircle(ctx22, 350, 100, 20, "#1e293b", "3");
-            }
-
-            if (index == 1) {
-                drawCircle(ctx31, 90, 200, 20, "#1e293b", "4");
-                drawCircle(ctx32, 210, 200, 20, "#1e293b", "5");
-            }
-
-            if (index == 2) {
-                drawCircle(ctx33, 290, 200, 20, "#1e293b", "6");
-                drawCircle(ctx34, 410, 200, 20, "#1e293b", "7");
-            }
-            //current
-            drawCircle(redCircles[index][0], redCircles[index][1], redCircles[index][2], redCircles[index][3], redCircles[index][4], redCircles[index][5]);
-
-            //paint back the previous
-            drawCircle(darkCircles[index - 1][0], darkCircles[index - 1][1], darkCircles[index - 1][2], darkCircles[index - 1][3], darkCircles[index - 1][4], darkCircles[index - 1][5]);
-        }
-    }
-
-    function refreshNodes1() {
-        // Clear previous timeouts if any
-        for (let i = 0; i < nodes1.length; i++) {
-            clearTimeout(nodes1[i].timeoutId);
-        }
-
-        for (let i = 0; i < nodes1.length; i++) {
-            nodes1[i].fillStyle = "#cbd5e1";
-        }
-
-        for (let i = 0; i < nodes1.length; i++) {
-            (function (index) {
-                nodes1[index].timeoutId = setTimeout(() => {
-                    processNode1(index);
-                }, 3000 * index);
-            })(i);
-        }
-    }
-
-
-</script>
+    </script>
+    {{block "bfsjs" .}} {{end}}
+    {{block "dfsjs" .}} {{end}}
 {{end}}

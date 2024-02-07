@@ -23,6 +23,7 @@ func routes(app *config.AppConfig) http.Handler {
 	mux.Get("/statistics/linear-regression", handlers.LinearRegression)
 
 	mux.Get("/ai-basics", handlers.AiPage)
+	mux.Get("/ai-basics/b", handlers.CallDFS)
 
 	fileServer := http.FileServer(http.Dir("./static/"))
 	mux.Handle("/static/*", http.StripPrefix("/static", fileServer))
