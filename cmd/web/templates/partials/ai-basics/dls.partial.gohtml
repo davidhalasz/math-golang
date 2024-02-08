@@ -1,0 +1,257 @@
+{{define "dls"}}
+<h3 class="font-bold text-lg mt-8">Mélységkorlátozott keresés</h3>
+<div class="flex gap-4">
+    <div class="w-1/2">
+        <p>
+            A végtelen fák problémáját a mélységi keresés azáltal küszöböli ki, hogy az utak maximális mélységére egy ℓ
+            korlátot ad. Az ℓ mélységben lévő csomópontokat úgy kezeli, mintha nem is lennének követőik. A módszer
+            neve a mélységkorlátozott keresés, MKK (depth-limited search, DLS).<br>
+            A mélységkorlát a végtelen út
+            problémáját ugyan megoldja, de a nemteljesség egy újabb forrását hozza be, ha ℓ < d -t választunk, azaz, ha
+                a legsekélyebb célcsomópont a mélységkorláton túl van (ez nem is esélytelen, ha d eleve ismeretlen). <br>
+            A
+                mélységkorlátozott keresés ℓ> d választással sem lesz optimális. A keresés időigénye O(bℓ), tárigénye
+                O(bℓ). A
+                mélységi keresés egy olyan speciális mélységkorlátozott keresésének tekinthető, amelynek mélységkorlátja
+                ℓ =
+                ∞.
+        </p>
+    </div>
+    <div class="w-1/2" class="tab-wrapper" x-data="{ activeTab: 0 }">
+        <div class="flex gap-2">
+            <div @click="activeTab = 0"
+                class="tab-control w-[120px] px-4 py-2 text-center rounded-md border border-slate-800 cursor-pointer"
+                :class="{ 'bg-slate-800 text-slate-100': activeTab === 0 }">GO</div>
+            <div @click="activeTab = 1"
+                class="tab-control w-[120px] px-4 py-2 text-center rounded-md border border-slate-800 cursor-pointer"
+                :class="{ 'bg-slate-800 text-slate-100': activeTab === 1 }">Canvas</div>
+        </div>
+        <div :class="{ 'active': activeTab === 0 }" x-show.transition.in.opacity.duration.600="activeTab === 0">
+            <pre>
+                    <code class="language-javascript">
+
+type Node struct {
+    Val   int
+    Left  *Node
+    Right *Node
+    Next  *Node
+}
+
+// Depth-Limited Search
+func DepthLimitedSearch(root *Node, target int, depth int) bool {
+	if root == nil {
+		return false
+	}
+	if root.Val == target {
+		return true
+	}
+	if depth <= 0 {
+		return false
+	}
+
+	// Recursively search the left and right subtrees with decreased depth
+	return DepthLimitedSearch(root.Left, target, depth-1) || DepthLimitedSearch(root.Right, target, depth-1)
+}
+
+func CallDLS(w http.ResponseWriter, r *http.Request) {
+	root := &Node{Val: 1}
+	root.Left = &Node{Val: 2}
+	root.Right = &Node{Val: 3}
+	root.Left.Left = &Node{Val: 4}
+	root.Left.Right = &Node{Val: 5}
+	root.Right.Left = &Node{Val: 6}
+	root.Right.Right = &Node{Val: 7}
+
+	target := 3
+	depth := 1
+
+	if DepthLimitedSearch(root, target, depth) {
+		fmt.Printf("%d found within depth limit %d\n", target, depth)
+	} else {
+		fmt.Printf("%d not found within depth limit %d\n", target, depth)
+	}
+}
+                    </code>
+                </pre>
+        </div>
+        <div :class="{ 'active': activeTab === 1 }" x-show.transition.in.opacity.duration.600="activeTab === 1">
+            <div class="w-full flex justify-center mt-8">
+                <button id="dlsBtn" onclick="refreshNodesDLS()"
+                    class="flex gap-1 justify-center items-center rounded-full px-4 py-2 bg-slate-600 hover:bg-sky-800 text-white disabled:bg-slate-300 disabled:cursor-not-allowed">
+                    <span>Start</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
+                    </svg>
+
+                </button>
+            </div>
+            <div class="w-full flex flex-col justify-center mt-8">
+                <p>Depth: 1</p>
+                <p>Target: 5</p>
+                <canvas id="dls" width="500" height="500"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{{end}}
+
+
+{{define "dlsjs"}}
+
+<script>
+    const dlsBtn = document.getElementById("dlsBtn");
+    const canvasDLS = document.getElementById("dls");
+    const dls1 = canvasDLS.getContext("2d");
+    const dls21 = canvasDLS.getContext("2d");
+    const dls22 = canvasDLS.getContext("2d");
+    const dls31 = canvasDLS.getContext("2d");
+    const dls32 = canvasDLS.getContext("2d");
+    const dls33 = canvasDLS.getContext("2d");
+    const dls34 = canvasDLS.getContext("2d");
+
+    const dlsLine1 = canvasDLS.getContext("2d");
+    const dlsLine2 = canvasDLS.getContext("2d");
+    const dlsLine3 = canvasDLS.getContext("2d");
+    const dlsLine4 = canvasDLS.getContext("2d");
+    const dlsLine5 = canvasDLS.getContext("2d");
+    const dlsLine6 = canvasDLS.getContext("2d");
+
+    let animationInProgressDLS = false;
+
+    drawCircle(dls1, 250, 20, 20, "#1e293b", "1");
+    drawCircle(dls21, 150, 100, 20, "#cbd5e1", "2");
+    drawCircle(dls22, 350, 100, 20, "#cbd5e1", "3");
+    drawCircle(dls31, 90, 200, 20, "#cbd5e1", "4");
+    drawCircle(dls32, 210, 200, 20, "#cbd5e1", "5");
+    dls32.strokeStyle = "green"
+    dls32.lineWidth = 3
+    dls32.stroke()
+    drawCircle(dls33, 290, 200, 20, "#cbd5e1", "6");
+    drawCircle(dls34, 410, 200, 20, "#cbd5e1", "7");
+
+    const redCirclesDLS = [
+        [dls1, 250, 20, 20, "#991b1b", "1"],
+        [dls21, 150, 100, 20, "#991b1b", "2"],
+        [dls22, 350, 100, 20, "#991b1b", "3"],
+    ];
+
+    const baseLinesDLS = [
+        [dlsLine1, 230, 25, 160, 85, "#cbd5e1"],
+        [dlsLine2, 270, 25, 340, 85, "#cbd5e1"],
+        [dlsLine3, 140, 120, 90, 180, "#cbd5e1"],
+        [dlsLine4, 160, 120, 210, 180, "#cbd5e1"],
+        [dlsLine5, 340, 120, 290, 180, "#cbd5e1"],
+        [dlsLine6, 360, 120, 410, 180, "#cbd5e1"],
+    ];
+
+    const darkCirclesDLS = [
+        [dls1, 250, 20, 20, "#1e293b", "1"],
+        [dls21, 150, 100, 20, "#1e293b", "2"],
+        [dls22, 350, 100, 20, "#1e293b", "3"],
+    ];
+
+    for (let i = 0; i < baseLinesDLS.length; i++) {
+        drawLine(baseLinesDLS[i][0], baseLinesDLS[i][1], baseLinesDLS[i][2], baseLinesDLS[i][3], baseLinesDLS[i][4], baseLinesDLS[i][5]);
+    }
+
+    const dslLineDash = canvasDLS.getContext("2d");
+
+    dslLineDash.setLineDash([5, 3]); 
+    dslLineDash.lineDashOffset = 0;
+    dslLineDash.beginPath();
+    dslLineDash.moveTo(50, 130);
+    dslLineDash.lineTo(450, 130); 
+    dslLineDash.strokeStyle = 'black';
+    dslLineDash.stroke();
+
+
+    const dlsNodes = [dls1, dls21, dls22];
+    const dlsLines = [dlsLine1, dlsLine2];
+
+    function processNodeDLS(index) {
+        if (index < dlsNodes.length) {
+            if (index > 0) {
+                drawCircle(dlsNodes[index - 1], 250, 20, 20, "#1e293b", "1");
+                drawCircle(darkCirclesDLS[index - 1][0], darkCirclesDLS[index - 1][1], darkCirclesDLS[index - 1][2], darkCirclesDLS[index - 1][3], darkCirclesDLS[index - 1][4], darkCirclesDLS[index - 1][5]);
+            }
+
+            if (index == 0) {
+                drawCircle(dls21, 150, 100, 20, "#1e293b", "2");
+                drawCircle(dls22, 350, 100, 20, "#1e293b", "3");
+
+                drawLine(baseLinesDLS[0][0], baseLinesDLS[0][1], baseLinesDLS[0][2], baseLinesDLS[0][3], baseLinesDLS[0][4], "#1e293b");
+                drawLine(baseLinesDLS[1][0], baseLinesDLS[1][1], baseLinesDLS[1][2], baseLinesDLS[1][3], baseLinesDLS[1][4], "#1e293b");
+            }
+
+            //current
+            drawCircle(redCirclesDLS[index][0], redCirclesDLS[index][1], redCirclesDLS[index][2], redCirclesDLS[index][3], redCirclesDLS[index][4], redCirclesDLS[index][5]);
+
+            //paint back the previous
+        }
+    }
+
+    function clearNodesTimeoutsDLS() {
+        // Clear previous timeouts if any
+        for (let i = 0; i < dlsNodes.length; i++) {
+            clearTimeout(dlsNodes[i].timeoutId);
+        }
+    }
+
+    function resetCanvasDLS() {
+        drawCircle(dls1, 250, 20, 20, "#1e293b", "1");
+        drawCircle(dls21, 150, 100, 20, "#cbd5e1", "2");
+        drawCircle(dls22, 350, 100, 20, "#cbd5e1", "3");
+        drawCircle(dls31, 90, 200, 20, "#cbd5e1", "4");
+        drawCircle(dls32, 210, 200, 20, "#cbd5e1", "5");
+        drawCircle(dls33, 290, 200, 20, "#cbd5e1", "6");
+        drawCircle(dls34, 410, 200, 20, "#cbd5e1", "7");
+
+        // Redraw base lines
+        for (let i = 0; i < baseLinesDLS.length; i++) {
+            drawLine(baseLinesDLS[i][0], baseLinesDLS[i][1], baseLinesDLS[i][2], baseLinesDLS[i][3], baseLinesDLS[i][4], baseLinesDLS[i][5]);
+        }
+    }
+
+    function disableButtonDLS() {
+        if (dlsBtn) {
+            dlsBtn.disabled = true;
+        }
+    }
+
+    function enableButtonDLS() {
+        if (dlsBtn) {
+            dlsBtn.disabled = false;
+        }
+    }
+
+    function refreshNodesDLS() {
+        // Check if animation is in progress
+        if (animationInProgressDLS) {
+            return;
+        }
+
+        disableButtonDLS();
+
+        animationInProgressDLS = true;
+        clearNodesTimeoutsDLS();
+        resetCanvasDLS();
+
+        // Set a timeout for the total animation duration
+        setTimeout(() => {
+            animationInProgressDLS = false;
+            enableButtonDLS();
+        }, 3000 * dlsNodes.length);
+
+        for (let i = 0; i < dlsNodes.length; i++) {
+            (function (index) {
+                dlsNodes[index].timeoutId = setTimeout(() => {
+                    processNodeDLS(index);
+                }, 3000 * index);
+            })(i);
+        }
+    }
+
+</script>
+{{end}}

@@ -83,7 +83,6 @@ func CreateTemplateCache() (map[string]*template.Template, error) {
 
 		// find partials for this page
 		partialDir := filepath.Join(pathToTemplates, "partials", pageName)
-		fmt.Println(partialDir)
 		partials, err := filepath.Glob(fmt.Sprintf("%s/*.partial.gohtml", partialDir))
 		if err != nil {
 			return myCache, err

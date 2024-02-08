@@ -152,3 +152,38 @@ func CallDFS(w http.ResponseWriter, r *http.Request) {
 	// visited: [ 1, 2, 4, 5, 3, 6 ]
 	// visited: [ 1, 2, 4, 5, 3, 6, 7 ]
 }
+
+// Depth-Limited Search
+func DepthLimitedSearch(root *Node, target int, depth int) bool {
+	if root == nil {
+		return false
+	}
+	if root.Val == target {
+		return true
+	}
+	if depth <= 0 {
+		return false
+	}
+
+	// Recursively search the left and right subtrees with decreased depth
+	return DepthLimitedSearch(root.Left, target, depth-1) || DepthLimitedSearch(root.Right, target, depth-1)
+}
+
+func CallDLS(w http.ResponseWriter, r *http.Request) {
+	root := &Node{Val: 1}
+	root.Left = &Node{Val: 2}
+	root.Right = &Node{Val: 3}
+	root.Left.Left = &Node{Val: 4}
+	root.Left.Right = &Node{Val: 5}
+	root.Right.Left = &Node{Val: 6}
+	root.Right.Right = &Node{Val: 7}
+
+	target := 3
+	depth := 1
+
+	if DepthLimitedSearch(root, target, depth) {
+		fmt.Printf("%d found within depth limit %d\n", target, depth)
+	} else {
+		fmt.Printf("%d not found within depth limit %d\n", target, depth)
+	}
+}
