@@ -1,0 +1,296 @@
+{{define "ids"}}
+<h3 class="font-bold text-lg mt-8">Iteratívan mélyülő mélységi keresés</h3>
+<div class="flex gap-4">
+    <div class="w-1/2">
+        <p>
+            Az iteratívan mélyülő keresés (iterative deepening search) – vagy iteratívan mélyülő mélységi keresés – egy
+            általános stratégia, amit sokszor a mélységi kereséssel együtt alkalmaznak a legjobb mélységkorlát
+            megtalálására. Az algoritmus képes erre, mert fokozatosan növeli a mélységkorlátot – legyen az először 0,
+            majd
+            1, majd 2 stb. – amíg a célt meg nem találja. Ez akkor következik be, ha a mélységkorlát eléri a d-t, a
+            legsekélyebben fekvő célcsomópont mélységét.
+        </p>
+        <p>
+            Az iteratívan mélyülő keresés tékozlónak tűnhet, mert felettébb sok állapotot többször is kifejt. Kiderül
+            azonban,
+            hogy a költségtöbblet nem lényeges. Ennek az az oka, hogy egy olyan keresési fában, ahol minden szinten
+            ugyanaz (vagy közel ugyanaz) az elágazási tényező, majdnem az összes csomópont a legmélyebb szinten
+            található, így nem túl sokat számít, hogy a magasabb szinteket többször is kifejtjük. Az iteratívan mélyülő
+            keresésben a legmélyebb szinten (d mélység) található csomópontokat csak egyszer fejtjük ki, egy szinttel
+            feljebb kétszer stb. egészen a gyökér gyerekeiig, amelyeket d-szer fejtünk ki.
+        </p>
+    </div>
+    <div class="w-1/2" class="tab-wrapper" x-data="{ activeTab: 0 }">
+        <div class="flex gap-2">
+            <div @click="activeTab = 0"
+                class="tab-control w-[120px] px-4 py-2 text-center rounded-md border border-slate-800 cursor-pointer"
+                :class="{ 'bg-slate-800 text-slate-100': activeTab === 0 }">GO</div>
+            <div @click="activeTab = 1"
+                class="tab-control w-[120px] px-4 py-2 text-center rounded-md border border-slate-800 cursor-pointer"
+                :class="{ 'bg-slate-800 text-slate-100': activeTab === 1 }">Canvas</div>
+        </div>
+        <div :class="{ 'active': activeTab === 0 }" x-show.transition.in.opacity.duration.600="activeTab === 0">
+            <pre>
+                    <code class="language-javascript">
+
+type Node struct {
+    Val   int
+    Left  *Node
+    Right *Node
+    Next  *Node
+}
+
+// Depth-Limited Search
+func DepthLimitedSearch(root *Node, target int, depth int) bool {
+	if root == nil {
+		return false
+	}
+	if root.Val == target {
+		return true
+	}
+	if depth <= 0 {
+		return false
+	}
+
+	// Recursively search the left and right subtrees with decreased depth
+	return DepthLimitedSearch(root.Left, target, depth-1) || DepthLimitedSearch(root.Right, target, depth-1)
+}
+
+func IterativeDeepeningSearch(root *Node, target int) bool {
+	depth := 0
+	for {
+		if DepthLimitedSearch(root, target, depth) {
+			return true
+		}
+		depth++
+	}
+}
+
+func CallIDS(w http.ResponseWriter, r *http.Request) {
+	root := &Node{Val: 1}
+	root.Left = &Node{Val: 2}
+	root.Right = &Node{Val: 3}
+	root.Left.Left = &Node{Val: 4}
+	root.Left.Right = &Node{Val: 5}
+	root.Right.Left = &Node{Val: 6}
+	root.Right.Right = &Node{Val: 7}
+
+	target := 5
+
+	if IterativeDeepeningSearch(root, target) {
+		fmt.Printf("%d found using Iterative Deepening Search\n", target)
+	} else {
+		fmt.Printf("%d not found using Iterative Deepening Search\n", target)
+	}
+}
+                    </code>
+                </pre>
+        </div>
+        <div :class="{ 'active': activeTab === 1 }" x-show.transition.in.opacity.duration.600="activeTab === 1">
+            <div class="w-full flex justify-center mt-8">
+                <button id="idsBtn" onclick="refreshNodesIDS()"
+                    class="flex gap-1 justify-center items-center rounded-full px-4 py-2 bg-slate-600 hover:bg-sky-800 text-white disabled:bg-slate-300 disabled:cursor-not-allowed">
+                    <span>Start</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
+                    </svg>
+
+                </button>
+            </div>
+            <div class="w-full flex flex-col justify-center mt-8">
+                <p class="text-lg text-center">Tartget: 5</p>
+                <p class="text-lg text-center" id="depth">Depth: 0</p>
+                <canvas id="ids" width="500" height="500"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{{end}}
+
+
+{{define "idsjs"}}
+
+<script>
+    const idsBtn = document.getElementById("idsBtn");
+    const depthElement = document.getElementById("depth");
+    const canvasIDS = document.getElementById("ids");
+    const ids1 = canvasIDS.getContext("2d");
+    const ids21 = canvasIDS.getContext("2d");
+    const ids22 = canvasIDS.getContext("2d");
+    const ids31 = canvasIDS.getContext("2d");
+    const ids32 = canvasIDS.getContext("2d");
+    const ids33 = canvasIDS.getContext("2d");
+    const ids34 = canvasIDS.getContext("2d");
+
+    const idsLine1 = canvasIDS.getContext("2d");
+    const idsLine2 = canvasIDS.getContext("2d");
+    const idsLine3 = canvasIDS.getContext("2d");
+    const idsLine4 = canvasIDS.getContext("2d");
+    const idsLine5 = canvasIDS.getContext("2d");
+    const idsLine6 = canvasIDS.getContext("2d");
+
+    let animationInProgressIDS = false;
+
+    drawCircle(ids1, 250, 20, 20, "#1e293b", "1");
+    drawCircle(ids21, 150, 100, 20, "#cbd5e1", "2");
+    drawCircle(ids22, 350, 100, 20, "#cbd5e1", "3");
+    drawCircle(ids31, 90, 200, 20, "#cbd5e1", "4");
+    drawCircle(ids32, 210, 200, 20, "#cbd5e1", "5");
+    ids32.strokeStyle = "green"
+    ids32.lineWidth = 3
+    ids32.stroke()
+    drawCircle(ids33, 290, 200, 20, "#cbd5e1", "6");
+    drawCircle(ids34, 410, 200, 20, "#cbd5e1", "7");
+
+
+    const redCirclesIDS = [
+        [ids1, 250, 20, 20, "#991b1b", "1"],
+        [ids21, 150, 100, 20, "#991b1b", "2"],
+        [ids22, 350, 100, 20, "#991b1b", "3"],
+        [ids1, 250, 20, 20, "#991b1b", "1"],
+        [ids21, 150, 100, 20, "#991b1b", "2"],
+        [ids31, 90, 200, 20, "#991b1b", "4"],
+        [ids32, 210, 200, 20, "#991b1b", "5"],
+    ];
+
+    const baseLinesIDS = [
+        [idsLine1, 230, 25, 160, 85, "#cbd5e1"],
+        [idsLine2, 270, 25, 340, 85, "#cbd5e1"],
+        [idsLine3, 140, 120, 90, 180, "#cbd5e1"],
+        [idsLine4, 160, 120, 210, 180, "#cbd5e1"],
+        [idsLine5, 340, 120, 290, 180, "#cbd5e1"],
+        [idsLine6, 360, 120, 410, 180, "#cbd5e1"],
+    ];
+
+    const darkCirclesIDS = [
+        [ids1, 250, 20, 20, "#1e293b", "1"],
+        [ids21, 150, 100, 20, "#1e293b", "2"],
+        [ids22, 350, 100, 20, "#1e293b", "3"],
+        [ids1, 250, 20, 20, "#1e293b", "1"],
+        [ids21, 150, 100, 20, "#1e293b", "2"],
+        [ids31, 90, 200, 20, "#1e293b", "4"],
+        [ids32, 210, 200, 20, "#1e293b", "5"],
+    ];
+
+    for (let i = 0; i < baseLinesIDS.length; i++) {
+        drawLine(baseLinesIDS[i][0], baseLinesIDS[i][1], baseLinesIDS[i][2], baseLinesIDS[i][3], baseLinesIDS[i][4], baseLinesIDS[i][5]);
+    }
+
+    const idsNodes = [ids1, ids21, ids22, ids1, ids21, ids22, ids31, ids32];
+    const idsLines = [idsLine1, idsLine2, idsLine1, idsLine2, idsLine3, idsLine4];
+
+    function processNodeIDS(index) {
+        if (index < idsNodes.length) {
+            if (index > 0) {
+                drawCircle(idsNodes[index - 1], 250, 20, 20, "#1e293b", "1");
+                drawCircle(darkCirclesIDS[index - 1][0], darkCirclesIDS[index - 1][1], darkCirclesIDS[index - 1][2], darkCirclesIDS[index - 1][3], darkCirclesIDS[index - 1][4], darkCirclesIDS[index - 1][5]);
+            }
+
+            if (index == 0) {
+                depthElement.innerText = "Depth: 1"
+                drawCircle(ids21, 150, 100, 20, "#1e293b", "2");
+                drawCircle(ids22, 350, 100, 20, "#1e293b", "3");
+
+                drawLine(baseLinesIDS[0][0], baseLinesIDS[0][1], baseLinesIDS[0][2], baseLinesIDS[0][3], baseLinesIDS[0][4], "#1e293b");
+                drawLine(baseLinesIDS[1][0], baseLinesIDS[1][1], baseLinesIDS[1][2], baseLinesIDS[1][3], baseLinesIDS[1][4], "#1e293b");
+            }
+
+            if (index == 3) {
+                resetCanvasIDS(2);
+                drawCircle(ids21, 150, 100, 20, "#1e293b", "2");
+                drawCircle(ids22, 350, 100, 20, "#1e293b", "3");
+
+                drawLine(baseLinesIDS[0][0], baseLinesIDS[0][1], baseLinesIDS[0][2], baseLinesIDS[0][3], baseLinesIDS[0][4], "#1e293b");
+                drawLine(baseLinesIDS[1][0], baseLinesIDS[1][1], baseLinesIDS[1][2], baseLinesIDS[1][3], baseLinesIDS[1][4], "#1e293b");
+            }
+
+            if (index == 4) {
+                drawCircle(ids31, 90, 200, 20, "#1e293b", "4");
+                drawCircle(ids32, 210, 200, 20, "#1e293b", "5");
+
+                drawLine(baseLinesIDS[2][0], baseLinesIDS[2][1], baseLinesIDS[2][2], baseLinesIDS[2][3], baseLinesIDS[2][4], "#1e293b");
+                drawLine(baseLinesIDS[3][0], baseLinesIDS[3][1], baseLinesIDS[3][2], baseLinesIDS[3][3], baseLinesIDS[3][4], "#1e293b");
+            }
+
+            //current
+            if (index < idsNodes.length-1) {
+                drawCircle(redCirclesIDS[index][0], redCirclesIDS[index][1], redCirclesIDS[index][2], redCirclesIDS[index][3], redCirclesIDS[index][4], redCirclesIDS[index][5]);
+            }
+
+            if (index == idsNodes.length-1) {
+                drawCircle(ids32, 210, 200, 20, "#15803D", "5");
+            }
+        }
+    }
+
+
+    function clearNodesTimeoutsIDS() {
+        // Clear previous timeouts if any
+        for (let i = 0; i < idsNodes.length; i++) {
+            clearTimeout(idsNodes[i].timeoutId);
+        }
+    }
+
+    function resetCanvasIDS(depth) {
+        depthElement.innerText = `Depth: ${depth}`
+        drawCircle(ids1, 250, 20, 20, "#1e293b", "1");
+        drawCircle(ids21, 150, 100, 20, "#cbd5e1", "2");
+        drawCircle(ids22, 350, 100, 20, "#cbd5e1", "3");
+        drawCircle(ids31, 90, 200, 20, "#cbd5e1", "4");
+        drawCircle(ids32, 210, 200, 20, "#cbd5e1", "5");
+        ids32.strokeStyle = "green"
+        ids32.lineWidth = 3
+        ids32.stroke()
+        drawCircle(ids33, 290, 200, 20, "#cbd5e1", "6");
+        drawCircle(ids34, 410, 200, 20, "#cbd5e1", "7");
+
+        // Redraw base lines
+        for (let i = 0; i < baseLinesIDS.length; i++) {
+            drawLine(baseLinesIDS[i][0], baseLinesIDS[i][1], baseLinesIDS[i][2], baseLinesIDS[i][3], baseLinesIDS[i][4], baseLinesIDS[i][5]);
+        }
+    }
+
+    function disableButtonIDS() {
+        if (idsBtn) {
+            idsBtn.disabled = true;
+        }
+    }
+
+    function enableButtonIDS() {
+        if (idsBtn) {
+            idsBtn.disabled = false;
+        }
+    }
+
+    function refreshNodesIDS() {
+        // Check if animation is in progress
+        if (animationInProgressIDS) {
+            return;
+        }
+
+        disableButtonIDS();
+
+        animationInProgressIDS = true;
+        clearNodesTimeoutsIDS();
+        resetCanvasIDS(0);
+
+        // Set a timeout for the total animation duration
+        setTimeout(() => {
+            animationInProgressIDS = false;
+            enableButtonIDS();
+        }, 3000 * idsNodes.length);
+
+       
+        for (let i = 0; i < idsNodes.length; i++) {
+            (function (index) {
+                idsNodes[index].timeoutId = setTimeout(() => {
+                    processNodeIDS(index);
+                }, 3000 * index);
+            })(i);
+        }
+    }
+
+</script>
+{{end}}

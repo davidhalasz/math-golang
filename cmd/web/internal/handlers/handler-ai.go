@@ -187,3 +187,32 @@ func CallDLS(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("%d not found within depth limit %d\n", target, depth)
 	}
 }
+
+// iterative dept search
+func IterativeDeepeningSearch(root *Node, target int) bool {
+	depth := 0
+	for {
+		if DepthLimitedSearch(root, target, depth) {
+			return true
+		}
+		depth++
+	}
+}
+
+func CallIDS(w http.ResponseWriter, r *http.Request) {
+	root := &Node{Val: 1}
+	root.Left = &Node{Val: 2}
+	root.Right = &Node{Val: 3}
+	root.Left.Left = &Node{Val: 4}
+	root.Left.Right = &Node{Val: 5}
+	root.Right.Left = &Node{Val: 6}
+	root.Right.Right = &Node{Val: 7}
+
+	target := 5
+
+	if IterativeDeepeningSearch(root, target) {
+		fmt.Printf("%d found using Iterative Deepening Search\n", target)
+	} else {
+		fmt.Printf("%d not found using Iterative Deepening Search\n", target)
+	}
+}
