@@ -1,4 +1,4 @@
-## A simple selling product web application
+## GO App
 
 This is just a web application where I gather the study materials I learned in university so I don't forget them. The study materials are written in Hungarian.
 The application uses the Go language, and I visualized the statistical data with the Gonum.
