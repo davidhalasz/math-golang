@@ -6,74 +6,119 @@ Home Page
 
 {{define "content"}}
 <div class="container  mx-auto p-10">
+    <h1 class="text-center text-2xl font-bold pt-10 pb-8">Mesterséges Intelligencia Alapjai</h1>
 
-    <h2 class="font-bold text-xl">Nem informált keresés</h2>
-    <p>
-        A nem informált (vaknak is nevezett) keresés azt jelenti, hogy ezen stratégiáknak semmilyen
-        információjuk nincs az állapotokról a probléma definíciójában megadott információn kívül. Működésük során
-        mást nem tehetnek, mint a következő állapotok generálása és a célállapot megkülönböztetése a nem
-        célállapottól.
-    </p>
-    <ul class="list-disc mt-2 pl-4">
-        <li>Teljesség (completeness): az algoritmus garantáltan megtalál egy megoldást, amennyiben létezik megoldás?
-        </li>
-        <li>Optimalitás (optimality): a stratégia megtalálja az optimális megoldást?</li>
-        <li>Időigény (time complexity): mennyi ideig tart egy megoldás megtalálása?</li>
-        <li>Tárigény (space complexity): a keresés elvégzéséhez mennyi memóriára van szükség?</li>
-    </ul>
-    <p class="mt-2">Az MI-ben,
-        ahol a gráfot implicit formában a kezdeti állapottal és az állapotátmenet-függvénnyel reprezentáljuk, és ahol a
-        gráf sokszor végtelen, a komplexitást három tényezővel fejezzük ki. Ezek: <span class="font-bold">b – az
-            elágazási tényező (branching
-            factor)</span>, vagyis a követők maximális száma minden csomópontban, <span class="font-bold">d – a
-            legsekélyebb célállapot mélysége</span> és <span class="font-bold">m
-            – az állapottérben található utak maximális hossza.</span></p> <br>
-    Az időt gyakran a keresés közben generált csomópontok számával, a tárat pedig a memóriában maximálisan
-    tárolt csomópontok számával mérik.</p>
-    <p class="mt-2">Ide tartozó keresési stratégiák:</p>
-    <ul class="list-disc pl-4">
-        <li>Szélességi keresés</li>
-        <li>Mélységi keresés</li>
-    </ul>
+    <p class="text-sm italic py-2">Felhasznált szakirodalom: Stuart Russel, Peter Norvig: Mesterséges Intelligencia:
+        Modern megközelítésben:
+        Második, átdolgozott, bővített kiadás</p>
 
-    {{template "bfs"}}
+    <div class="non-informed">
+        <h2 class="font-bold text-xl">Nem informált keresés</h2>
+        <p>
+            A nem informált (vaknak is nevezett) keresés azt jelenti, hogy ezen stratégiáknak semmilyen
+            információjuk nincs az állapotokról a probléma definíciójában megadott információn kívül. Működésük során
+            mást nem tehetnek, mint a következő állapotok generálása és a célállapot megkülönböztetése a nem
+            célállapottól.
+        </p>
+        <ul class="list-disc mt-2 pl-4">
+            <li>Teljesség (completeness): az algoritmus garantáltan megtalál egy megoldást, amennyiben létezik megoldás?
+            </li>
+            <li>Optimalitás (optimality): a stratégia megtalálja az optimális megoldást?</li>
+            <li>Időigény (time complexity): mennyi ideig tart egy megoldás megtalálása?</li>
+            <li>Tárigény (space complexity): a keresés elvégzéséhez mennyi memóriára van szükség?</li>
+        </ul>
+        <p class="mt-2">Az MI-ben,
+            ahol a gráfot implicit formában a kezdeti állapottal és az állapotátmenet-függvénnyel reprezentáljuk, és
+            ahol a
+            gráf sokszor végtelen, a komplexitást három tényezővel fejezzük ki. Ezek: <span class="font-bold">b – az
+                elágazási tényező (branching
+                factor)</span>, vagyis a követők maximális száma minden csomópontban, <span class="font-bold">d – a
+                legsekélyebb célállapot mélysége</span> és <span class="font-bold">m
+                – az állapottérben található utak maximális hossza.</span></p> <br>
+        Az időt gyakran a keresés közben generált csomópontok számával, a tárat pedig a memóriában maximálisan
+        tárolt csomópontok számával mérik.</p>
+        <p class="mt-2">Ide tartozó keresési stratégiák:</p>
+        <ul class="list-disc pl-4">
+            <li>Szélességi keresés</li>
+            <li>Mélységi keresés</li>
+            <li>Mélységkorlátozott keresés</li>
+            <li>Iteratívan mélyülő mélységi keresés</li>
+        </ul>
 
-    {{template "dfs"}}
+        {{template "bfs"}}
 
-    {{template "dls"}}
+        {{template "dfs"}}
 
-    {{template "ids"}}
-    
+        {{template "dls"}}
 
+        {{template "ids"}}
+    </div>
+
+    <div class="informed-search pt-8">
+        <h2 class="font-bold text-xl">Informált (heurisztikus) keresési stratégiák</h2>
+        <p>Az informált keresési (informed search) stratégia – amely a probléma
+            definícióján túlmenően problémaspecifikus tudást is felhasznál – azt mutatja meg, hogy hogyan képes
+            hatékonyabban megtalálni a
+            megoldást.</p>
+
+        <p class="pt-2">
+            1. A LEGJOBBAT-ELŐSZÖR-KERESÉS algoritmus tulajdonképpen egy keresési algoritmus család, amelynek az
+            elemeit az eltérő kiértékelő függvények1 különböztetik meg. Ezeknek az algoritmusoknak a kulcseleme a h(n)-
+            nel jelölt heurisztikus függvény2 (heuristic function): <br>
+            <code>h(n) = az n csomóponttól a célig vezető legolcsóbb út becsült útköltsége</code>
+        </p>
+        <p class="pt-2">
+            <span class="font-bold">1.1 A mohó legjobbat-először keresés</span> <br>
+
+            A mohó legjobbat-először keresés3 (greedy best-first search) azt a csomópontot fejti ki a következő
+            lépésben,
+            amelyiknek az állapotát a legközelebbinek ítéli a célállapothoz, abból kiindulva, hogy így gyorsan
+            megtalálja a
+            megoldást. A csomópontokat az algoritmus tehát az f(n) = h(n) heurisztikus függvénnyel értékeli ki.
+        </p>
+
+        <p class="pt-1">
+            <span class="font-bold">1.2 A* keresés: a teljes becsült útköltség minimalizálása</span> <br>
+
+            A legjobbat-először keresés leginkább ismert változata az A* keresés (a kiejtése ’A csillag’). A
+            csomópontokat
+            úgy értékeli ki, hogy összekombinálja g(n) értékét – az aktuális csomópontig megtett út költsége – és h(n)
+            értékét – vagyis az adott csomóponttól a célhoz vezető út költségének becslőjét: <br>
+            <code>f(n) = g(n) + h(n)</code> <br><br>
+            Mivel g(n) megadja a kiinduló csomóponttól az n csomópontig számított útköltséget, és h(n) az n csomóponttól
+            a célcsomópontba vezető legolcsóbb költségű út költségének becslője, így az alábbi összefüggést kapjuk: <br>
+            <code>f(n) = a legolcsóbb, az n csomóponton keresztül vezető megoldás becsült költsége.</code>
+        </p>
+    </div>
 </div>
 {{end}}
 
 
 {{define "js"}}
-    <script>
-        function drawCircle(ctx, x, y, radius, color, text) {
-            ctx.beginPath();
-            ctx.arc(x, y, radius, 0, 2 * Math.PI);
-            ctx.fillStyle = color;
-            ctx.fill();
+<script>
+    function drawCircle(ctx, x, y, radius, color, text) {
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, 2 * Math.PI);
+        ctx.fillStyle = color;
+        ctx.fill();
 
-            ctx.font = "18px Arial";
-            ctx.fillStyle = "white";
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            ctx.fillText(text, x, y);
-        }
+        ctx.font = "18px Arial";
+        ctx.fillStyle = "white";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(text, x, y);
+    }
 
-        function drawLine(ctx, x1, y1, x2, y2, color) {
-            ctx.beginPath();
-            ctx.strokeStyle = color;
-            ctx.moveTo(x1, y1);
-            ctx.lineTo(x2, y2);
-            ctx.stroke();
-        }
-    </script>
-    {{block "bfsjs" .}} {{end}}
-    {{block "dfsjs" .}} {{end}}
-    {{block "dlsjs" .}} {{end}}
-    {{block "idsjs" .}} {{end}}
+    function drawLine(ctx, x1, y1, x2, y2, color) {
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+    }
+</script>
+{{block "bfsjs" .}} {{end}}
+{{block "dfsjs" .}} {{end}}
+{{block "dlsjs" .}} {{end}}
+{{block "idsjs" .}} {{end}}
 {{end}}
